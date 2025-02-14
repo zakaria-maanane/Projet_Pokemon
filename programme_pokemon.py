@@ -163,7 +163,7 @@ class Game:
                                 False)
 
     def save_game_data(self):
-        with open("game_history.txt", "a") as f:
+        with open("pokemon.txt", "a") as f:
             f.write(f"Date: {datetime.now()}\n")
             f.write(f"Player: {self.player.name}\n")
             f.write(f"Deck: {self.player.deck_name}\n")

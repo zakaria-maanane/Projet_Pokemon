@@ -1,0 +1,6 @@
+Date: 2025-02-14 12:57:49.319456
+Player: zak
+Deck: you
+Pokemon utilisés: ['pikachu', 'charizard', 'charmander']
+Score: 1
+--------------------------------------------------
