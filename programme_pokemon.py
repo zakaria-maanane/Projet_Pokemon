@@ -9,6 +9,8 @@ from datetime import datetime
 pygame.init()
 pygame.font.init()
 
+
+
 # Constants
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
@@ -190,6 +192,7 @@ class Game:
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption("Combat Pokémon")
         self.clock = pygame.time.Clock()
+
         self.state = "WELCOME"
         self.player = Player()
         self.ai_pokemon_team = []
@@ -198,8 +201,36 @@ class Game:
         self.input_active = "name"
         self.load_available_pokemon()
         self.running = True
+
+
         self.end_game_result = None  # Pour stocker le résultat de la partie
         self.captured_pokemon = None  # Pour stocker le Pokémon capturé
+
+        pygame.init()
+        pygame.font.init()
+        pygame.mixer.init()  # Initialisation du système audio
+
+        # Chargement du fond
+        try:
+            self.background = pygame.image.load("background.jpg")  # Assurez-vous d'avoir cette image
+            self.background = pygame.transform.scale(self.background, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        except:
+            print("Erreur de chargement du fond, utilisation d'un fond uni")
+            self.background = None
+
+        # Chargement des sons
+        try:
+            self.battle_music = pygame.mixer.Sound("music.MP3")  # Musique de fond
+            self.shoot_sound = pygame.mixer.Sound("shoot_sound.wav")    # Son de tir
+            # Régler le volume de la musique (0.0 à 1.0)
+            self.battle_music.set_volume(0.3)
+            self.shoot_sound.set_volume(0.5)
+            self.battle_music.play(-1)  # -1 pour une lecture en boucle
+        except:
+            print("Erreur de chargement des sons")
+            self.battle_music = None
+            self.shoot_sound = None
+      
 
 
     def load_available_pokemon(self):
@@ -317,14 +348,24 @@ class Game:
             return  # Ajoutez un return ici pour arrêter l'update
 
     def draw_welcome(self):
-        self.screen.fill(WHITE)
+        if self.background:
+            self.screen.blit(self.background, (0, 0))
+        else:
+            self.screen.fill(WHITE)
         name_text = FONT.render(f"Nom: {self.player.name}", True, BLACK)
         deck_text = FONT.render(f"Nom du deck: {self.player.deck_name}", True, BLACK)
         self.screen.blit(name_text, (200, 200))
         self.screen.blit(deck_text, (200, 300))
 
     def draw_selection(self):
-        self.screen.fill(WHITE)
+
+        if self.background:
+            self.screen.blit(self.background, (0, 0))
+        else:
+            self.screen.fill(WHITE)
+
+    
+       
         title = FONT.render("Sélectionnez 3 Pokémon", True, BLACK)
         self.screen.blit(title, (250, 100))
         
@@ -345,12 +386,22 @@ class Game:
             name_text = SMALL_FONT.render(pokemon['name'], True, BLACK)
             self.screen.blit(name_text, (100 + i * 120, 400))
 
+
+
     def draw_battle(self):
+
+        #=====
+        if self.background:
+            self.screen.blit(self.background, (0, 0))
+        else:
+            self.screen.fill(WHITE)
+
+        #=====    
         if self.state == "END_GAME":  # Ajoutez cette vérification
             self.draw_end_game()
             return
 
-        self.screen.fill(WHITE)
+        
         if self.player_pokemon is None:
             # Affichage de la sélection
             text = FONT.render("Choisissez votre Pokémon", True, BLACK)
@@ -390,38 +441,12 @@ class Game:
             self.screen.blit(player_text, (50, 50))
             self.screen.blit(ai_text, (WINDOW_WIDTH - 200, 50))
 
-
-    def run(self):
-     while self.running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif self.state == "END_GAME":
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    self.running = False
-            elif self.state == "WELCOME":
-                self.handle_welcome_input(event)
-            elif self.state == "SELECTION":
-                self.handle_selection_input(event)
-            elif self.state == "BATTLE":
-                self.handle_battle_input(event)
-
-        # Mise à jour de l'affichage selon l'état
-        if self.state == "WELCOME":
-            self.draw_welcome()
-        elif self.state == "SELECTION":
-            self.draw_selection()
-        elif self.state == "BATTLE":
-            self.update_battle()
-            self.draw_battle()
-        elif self.state == "END_GAME":
-            self.draw_end_game()  # Assurez-vous que cette méthode est appelée
-
-        pygame.display.flip()
-        self.clock.tick(FPS)
-
     def draw_end_game(self):
-        self.screen.fill(WHITE)
+        if self.background:
+            self.screen.blit(self.background, (0, 0))
+        else:
+            self.screen.fill(WHITE)
+        
         
         # Titre
         if self.end_game_result == "WIN":
@@ -476,10 +501,64 @@ class Game:
         continue_text = SMALL_FONT.render("Appuyez sur ESPACE pour quitter", True, BLACK)
         self.screen.blit(continue_text, (WINDOW_WIDTH // 2 - continue_text.get_width() // 2, 550))
 
+    def handle_battle_input(self, event):
+        if self.player_pokemon is None:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, pokemon in enumerate(self.player.pokemon_team):
+                    pokemon_rect = pygame.Rect(50 + i * 120, 450, 100, 100)
+                    if pokemon_rect.collidepoint(mouse_pos):
+                        self.player_pokemon = Pokemon(100, 300, pokemon['id'], pokemon, True)
+        else:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+                self.player_pokemon.shoot()
+                if self.shoot_sound:
+                    self.shoot_sound.play()
 
 
+    def run(self):
+        try:
+           if self.battle_music:
+            self.battle_music.play(-1)  # Démarre la musique en boucle
+
+           while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif self.state == "END_GAME":
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        self.running = False
+                elif self.state == "WELCOME":
+                    self.handle_welcome_input(event)
+                elif self.state == "SELECTION":
+                    self.handle_selection_input(event)
+                elif self.state == "BATTLE":
+                    self.handle_battle_input(event)
+
+            # Mise à jour de l'affichage selon l'état
+            if self.state == "WELCOME":
+                self.draw_welcome()
+            elif self.state == "SELECTION":
+                self.draw_selection()
+            elif self.state == "BATTLE":
+                self.update_battle()
+                self.draw_battle()
+            elif self.state == "END_GAME":
+                self.draw_end_game()
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+        except Exception as e:
+             print(f"Une erreur s'est produite : {e}")
+        finally:
+        # Nettoyage à la fin du jeu
+           if self.battle_music:
+            self.battle_music.stop()
+           if pygame.mixer.get_init():
+            pygame.mixer.quit()
+        pygame.quit()
 
 if __name__ == "__main__":
     game = Game()
     game.run()
-    pygame.quit()
