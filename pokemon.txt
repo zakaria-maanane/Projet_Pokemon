@@ -1,0 +1,24 @@
+Date: 2025-02-14 14:02:37.871244
+Player: perla
+Deck: perla_desk
+Pokemon utilisés: ['pikachu', 'charmander', 'squirtle']
+Score: 1
+--------------------------------------------------
+Date: 2025-02-14 14:03:43.831344
+Player: zak
+Deck: zak_desk
+Pokemon utilisés: ['charizard', 'pikachu', 'blastoise']
+Score: 1
+--------------------------------------------------
+Date: 2025-02-14 14:05:33.911666
+Player: Adam
+Deck: Adam_desk
+Pokemon utilisés: ['charmander', 'squirtle', 'pikachu']
+Score: 1
+--------------------------------------------------
+Date: 2025-02-14 15:35:00.298637
+Player: zak
+Deck: op
+Pokemon utilisés: ['pikachu', 'pikachu', 'charizard']
+Score: 1
+--------------------------------------------------
