@@ -22,3 +22,23 @@ Deck: op
 Pokemon utilisés: ['pikachu', 'pikachu', 'charizard']
 Score: 1
 --------------------------------------------------
+Date: 2025-02-14 15:48:07.079073
+Player: z
+Deck: p
+Pokemon utilisés: ['pikachu', 'charizard', 'squirtle']
+Score: 1
+--------------------------------------------------
+Date: 2025-02-14 15:48:07.087447
+Player: z
+Deck: p
+Pokemon utilisés: ['pikachu', 'charizard', 'squirtle', 'bulbasaur']
+Score: 2
+Nouveau Pokemon capturé: bulbasaur
+--------------------------------------------------
+Date: 2025-02-14 15:52:21.691519
+Player: zak
+Deck: p
+Pokemon utilisés: ['pikachu', 'charizard', 'blastoise', 'charmander']
+Score: 1
+Nouveau Pokemon capturé: charmander
+--------------------------------------------------

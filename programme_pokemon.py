@@ -198,6 +198,9 @@ class Game:
         self.input_active = "name"
         self.load_available_pokemon()
         self.running = True
+        self.end_game_result = None  # Pour stocker le résultat de la partie
+        self.captured_pokemon = None  # Pour stocker le Pokémon capturé
+
 
     def load_available_pokemon(self):
         # Chargement de 6 Pokémon différents pour la sélection
@@ -252,6 +255,8 @@ class Game:
             f.write(f"Deck: {self.player.deck_name}\n")
             f.write(f"Pokemon utilisés: {[p['name'] for p in self.player.pokemon_team]}\n")
             f.write(f"Score: {self.player.score}\n")
+            if self.captured_pokemon:
+                f.write(f"Nouveau Pokemon capturé: {self.captured_pokemon['name']}\n")
             f.write("-" * 50 + "\n")
 
     def handle_battle_input(self, event):
@@ -270,51 +275,46 @@ class Game:
                 self.player_pokemon.shoot()
 
     def update_battle(self):
-        if self.player_pokemon and self.ai_pokemon:
-            # Mise à jour des projectiles
-            self.player_pokemon.update_projectiles()
-            self.ai_pokemon.update_projectiles()
+     if self.player_pokemon and self.ai_pokemon:
+        # Mise à jour des projectiles
+        self.player_pokemon.update_projectiles()
+        self.ai_pokemon.update_projectiles()
 
-            # Gestion des collisions avec le nouveau système de dégâts
-            for projectile in self.player_pokemon.projectiles[:]:
-                if projectile.check_collision(self.ai_pokemon):
-                    self.player_pokemon.projectiles.remove(projectile)
+        # Gestion des collisions
+        for projectile in self.player_pokemon.projectiles[:]:
+            if projectile.check_collision(self.ai_pokemon):
+                self.player_pokemon.projectiles.remove(projectile)
 
-            for projectile in self.ai_pokemon.projectiles[:]:
-                if projectile.check_collision(self.player_pokemon):
-                    self.ai_pokemon.projectiles.remove(projectile)
+        for projectile in self.ai_pokemon.projectiles[:]:
+            if projectile.check_collision(self.player_pokemon):
+                self.ai_pokemon.projectiles.remove(projectile)
 
+        # IA plus intelligente basée sur les types
+        if random.random() < 0.02:  # 2% de chance de tirer par frame
+            type_advantage = 1
+            for ai_type in self.ai_pokemon.types:
+                for player_type in self.player_pokemon.types:
+                    if TYPE_CHART.get(ai_type, {}).get(player_type, 1) > 1:
+                        type_advantage *= 1.5  
 
-             # IA plus intelligente basée sur les types
-            if random.random() < 0.02:  # 2% de chance de tirer par frame
-                type_advantage = 1
-                for ai_type in self.ai_pokemon.types:
-                    for player_type in self.player_pokemon.types:
-                        type_multiplier = TYPE_CHART.get(ai_type, {}).get(player_type, 1)
-                        if type_multiplier > 1:
-                            type_advantage *= 1.5  # Augmente la chance de tirer si avantage de typex        
-
-            # IA tire aléatoirement
-            if random.random() < 0.02:  # 2% de chance de tirer à chaque frame
+            # IA tire si elle a un avantage de type
+            if random.random() < 0.02 * type_advantage:
                 self.ai_pokemon.shoot()
 
-            # Vérification des collisions
-            for projectile in self.player_pokemon.projectiles[:]:
-                if projectile.check_collision(self.ai_pokemon):
-                    self.ai_pokemon.health -= 10
-                    self.player_pokemon.projectiles.remove(projectile)
-
-            for projectile in self.ai_pokemon.projectiles[:]:
-                if projectile.check_collision(self.player_pokemon):
-                    self.player_pokemon.health -= 10
-                    self.ai_pokemon.projectiles.remove(projectile)
-
-            # Vérification de la fin du combat
-            if self.player_pokemon.health <= 0 or self.ai_pokemon.health <= 0:
-                if self.ai_pokemon.health <= 0:
-                    self.player.score += 1
-                self.save_game_data()
-                self.running = False
+        # Vérification de la fin du combat
+        if self.player_pokemon.health <= 0 or self.ai_pokemon.health <= 0:
+            if self.ai_pokemon.health <= 0:
+                self.player.score += 1
+                self.end_game_result = "WIN"
+                self.captured_pokemon = self.ai_pokemon_team[0]
+                if self.captured_pokemon not in self.player.pokemon_team:
+                    self.player.pokemon_team.append(self.captured_pokemon)
+            else:
+                self.end_game_result = "LOSE"
+            
+            self.save_game_data()
+            self.state = "END_GAME"  # Assurez-vous que cette ligne est exécutée
+            return  # Ajoutez un return ici pour arrêter l'update
 
     def draw_welcome(self):
         self.screen.fill(WHITE)
@@ -346,6 +346,10 @@ class Game:
             self.screen.blit(name_text, (100 + i * 120, 400))
 
     def draw_battle(self):
+        if self.state == "END_GAME":  # Ajoutez cette vérification
+            self.draw_end_game()
+            return
+
         self.screen.fill(WHITE)
         if self.player_pokemon is None:
             # Affichage de la sélection
@@ -388,27 +392,92 @@ class Game:
 
 
     def run(self):
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+     while self.running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif self.state == "END_GAME":
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     self.running = False
-                elif self.state == "WELCOME":
-                    self.handle_welcome_input(event)
-                elif self.state == "SELECTION":
-                    self.handle_selection_input(event)
-                elif self.state == "BATTLE":
-                    self.handle_battle_input(event)
-
-            if self.state == "WELCOME":
-                self.draw_welcome()
+            elif self.state == "WELCOME":
+                self.handle_welcome_input(event)
             elif self.state == "SELECTION":
-                self.draw_selection()
+                self.handle_selection_input(event)
             elif self.state == "BATTLE":
-                self.update_battle()
-                self.draw_battle()
+                self.handle_battle_input(event)
 
-            pygame.display.flip()
-            self.clock.tick(FPS)
+        # Mise à jour de l'affichage selon l'état
+        if self.state == "WELCOME":
+            self.draw_welcome()
+        elif self.state == "SELECTION":
+            self.draw_selection()
+        elif self.state == "BATTLE":
+            self.update_battle()
+            self.draw_battle()
+        elif self.state == "END_GAME":
+            self.draw_end_game()  # Assurez-vous que cette méthode est appelée
+
+        pygame.display.flip()
+        self.clock.tick(FPS)
+
+    def draw_end_game(self):
+        self.screen.fill(WHITE)
+        
+        # Titre
+        if self.end_game_result == "WIN":
+            title = FONT.render("Victoire!", True, GREEN)
+            subtitle = FONT.render("Vous avez capturé un nouveau Pokémon!", True, BLACK)
+        else:
+            title = FONT.render("Défaite!", True, RED)
+            subtitle = FONT.render("Continuez à vous entraîner!", True, BLACK)
+            
+        self.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
+        self.screen.blit(subtitle, (WINDOW_WIDTH // 2 - subtitle.get_width() // 2, 100))
+
+        # Affichage de votre équipe
+        team_title = FONT.render("Votre équipe:", True, BLACK)
+        self.screen.blit(team_title, (50, 150))
+
+        for i, pokemon in enumerate(self.player.pokemon_team):
+            # Charger et afficher le sprite
+            response = requests.get(pokemon['sprites']['front_default'])
+            temp_file = f"temp_end_game_{i}.png"
+            with open(temp_file, 'wb') as f:
+                f.write(response.content)
+            sprite = pygame.image.load(temp_file)
+            sprite = pygame.transform.scale(sprite, (100, 100))
+            self.screen.blit(sprite, (50 + i * 150, 200))
+            
+            # Nom du Pokémon
+            name = SMALL_FONT.render(pokemon['name'], True, BLACK)
+            self.screen.blit(name, (50 + i * 150, 310))
+            
+            os.remove(temp_file)
+
+        # Affichage du Pokémon capturé si victoire
+        if self.end_game_result == "WIN" and self.captured_pokemon:
+            captured_title = FONT.render("Pokémon capturé:", True, BLACK)
+            self.screen.blit(captured_title, (50, 350))
+            
+            response = requests.get(self.captured_pokemon['sprites']['front_default'])
+            temp_file = "temp_captured.png"
+            with open(temp_file, 'wb') as f:
+                f.write(response.content)
+            sprite = pygame.image.load(temp_file)
+            sprite = pygame.transform.scale(sprite, (100, 100))
+            self.screen.blit(sprite, (50, 400))
+            
+            name = SMALL_FONT.render(self.captured_pokemon['name'], True, BLACK)
+            self.screen.blit(name, (50, 510))
+            
+            os.remove(temp_file)
+
+        # Message pour continuer
+        continue_text = SMALL_FONT.render("Appuyez sur ESPACE pour quitter", True, BLACK)
+        self.screen.blit(continue_text, (WINDOW_WIDTH // 2 - continue_text.get_width() // 2, 550))
+
+
+
 
 if __name__ == "__main__":
     game = Game()
