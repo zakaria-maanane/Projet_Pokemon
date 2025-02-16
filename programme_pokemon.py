@@ -12,8 +12,8 @@ pygame.font.init()
 
 
 # Constants
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
+WINDOW_WIDTH = 1300
+WINDOW_HEIGHT = 800
 FPS = 60
 
 # Couleurs
@@ -212,7 +212,7 @@ class Game:
 
         # Chargement du fond
         try:
-            self.background = pygame.image.load("background.jpg")  # Assurez-vous d'avoir cette image
+            self.background = pygame.image.load("wall2.png")  # Assurez-vous d'avoir cette image
             self.background = pygame.transform.scale(self.background, (WINDOW_WIDTH, WINDOW_HEIGHT))
         except:
             print("Erreur de chargement du fond, utilisation d'un fond uni")
@@ -220,7 +220,7 @@ class Game:
 
         # Chargement des sons
         try:
-            self.battle_music = pygame.mixer.Sound("music.MP3")  # Musique de fond
+            self.battle_music = pygame.mixer.Sound("music.mp3")  # Musique de fond
             self.shoot_sound = pygame.mixer.Sound("shoot_sound.wav")    # Son de tir
             # Régler le volume de la musique (0.0 à 1.0)
             self.battle_music.set_volume(0.3)

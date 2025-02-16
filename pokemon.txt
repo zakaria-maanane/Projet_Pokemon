@@ -84,3 +84,24 @@ Pokemon utilisés: ['pikachu', 'charizard', 'blastoise', 'charmander']
 Score: 1
 Nouveau Pokemon capturé: charmander
 --------------------------------------------------
+Date: 2025-02-16 21:24:55.804121
+Player: zak
+Deck: desk1
+Pokemon utilisés: ['pikachu', 'charizard', 'squirtle', 'bulbasaur']
+Score: 1
+Nouveau Pokemon capturé: bulbasaur
+--------------------------------------------------
+Date: 2025-02-16 22:04:44.264049
+Player: zak
+Deck: po
+Pokemon utilisés: ['bulbasaur', 'charmander', 'squirtle', 'charizard']
+Score: 1
+Nouveau Pokemon capturé: charizard
+--------------------------------------------------
+Date: 2025-02-16 22:07:27.207884
+Player: zak
+Deck: pom
+Pokemon utilisés: ['charizard', 'pikachu', 'squirtle', 'charmander']
+Score: 1
+Nouveau Pokemon capturé: charmander
+--------------------------------------------------
