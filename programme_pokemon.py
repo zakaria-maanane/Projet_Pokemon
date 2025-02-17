@@ -9,7 +9,10 @@ from datetime import datetime
 pygame.init()
 pygame.font.init()
 
-
+# j'importe le son de la musique 
+pygame.mixer.init() # Initialisation du système audio
+pygame.mixer.music.load("music.mp3") # Chargement de la musique
+pygame.mixer.music.play(-1) # -1 pour une lecture en boucle
 
 # Constants
 WINDOW_WIDTH = 1300
