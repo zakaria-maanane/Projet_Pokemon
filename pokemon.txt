@@ -133,3 +133,17 @@ Pokemon utilisés: ['charmander', 'squirtle', 'pikachu', 'charizard']
 Score: 1
 Nouveau Pokemon capturé: charizard
 --------------------------------------------------
+Date: 2025-02-17 14:55:21.492096
+Player: Rayan
+Deck: Desk
+Pokemon utilisés: ['charizard', 'squirtle', 'squirtle', 'pikachu']
+Score: 1
+Nouveau Pokemon capturé: pikachu
+--------------------------------------------------
+Date: 2025-02-17 16:46:59.109782
+Player: zak
+Deck: p
+Pokemon utilisés: ['blastoise', 'charizard', 'pikachu', 'squirtle']
+Score: 1
+Nouveau Pokemon capturé: squirtle
+--------------------------------------------------

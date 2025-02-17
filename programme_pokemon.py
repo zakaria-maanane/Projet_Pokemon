@@ -4,6 +4,7 @@ import json
 import os
 import random
 from datetime import datetime
+import math
 
 # Initialisation de Pygame
 pygame.init()
@@ -92,6 +93,14 @@ class Pokemon:
         self.id = pokemon_id
         self.name = pokemon_data['name']
 
+        self.shots_fired = 0
+        self.base_accuracy = 0.80  # 80% de précision initiale
+        self.reduced_accuracy = 0.65  # 65% après 4 tirs
+        self.accuracy_threshold = 4  # Nombre de tirs avant réduction
+
+
+  
+
         # Stats de base (à partir de l'API)
         self.attack = pokemon_data['stats'][1]['base_stat']
         self.defense = pokemon_data['stats'][2]['base_stat']
@@ -138,13 +147,21 @@ class Pokemon:
 
 
     def shoot(self):
+        self.shots_fired += 1
+        current_accuracy = self.get_current_accuracy()
+        
+        will_hit = random.random() < current_accuracy  # Utilisation cohérente de will_hit
+        
         projectile = Projectile(
-           self.x + (self.width if not self.is_player else 0),
-           self.y + self.height // 2,
-           10 if self.is_player else -10,
-           self  # Ajout de self comme source_pokemon
+            x=self.x + (self.width if not self.is_player else 0),
+            y=self.y + self.height // 2,
+            speed=10 if self.is_player else -10,
+            source_pokemon=self,
+            will_hit=will_hit
         )
         self.projectiles.append(projectile)
+
+        
 
     def update_projectiles(self):
         for projectile in self.projectiles[:]:
@@ -160,25 +177,37 @@ class Pokemon:
         for projectile in self.projectiles:
             projectile.draw(screen)
 
+    def get_current_accuracy(self):
+        if self.shots_fired < self.accuracy_threshold:
+            return self.base_accuracy
+        return self.reduced_accuracy        
 
 
 
 class Projectile:
-    def __init__(self, x, y, speed, source_pokemon):
+    def __init__(self, x, y, speed, source_pokemon, will_hit):
         self.x = x
         self.y = y
+        self.initial_y = y
         self.speed = speed
         self.radius = 5
         self.source_pokemon = source_pokemon
+        self.will_hit = will_hit  # Utilisation cohérente de will_hit
+        self.distance_traveled = 0
+        self.deviation = random.uniform(-30, 30) if not will_hit else 0
 
     def update(self):
         self.x += self.speed
-
-    def draw(self, screen):
-        pygame.draw.circle(screen, BLACK, (int(self.x), int(self.y)), self.radius)
-
+        self.distance_traveled += abs(self.speed)
+        
+        if not self.will_hit:  # Utilisation de will_hit au lieu de hit
+            curve = math.sin(self.distance_traveled * 0.05) * self.deviation
+            self.y = self.initial_y + curve
 
     def check_collision(self, target_pokemon):
+        if not self.will_hit:  # Utilisation de will_hit au lieu de hit
+            return False
+            
         pokemon_rect = pygame.Rect(target_pokemon.x, target_pokemon.y, 
                                  target_pokemon.width, target_pokemon.height)
         projectile_rect = pygame.Rect(self.x - self.radius, self.y - self.radius, 
@@ -189,6 +218,11 @@ class Projectile:
             target_pokemon.health -= damage
             return True
         return False
+
+    def draw(self, screen):
+        color = BLACK if self.will_hit else (150, 150, 150)  # Utilisation de will_hit au lieu de hit
+        pygame.draw.circle(screen, color, (int(self.x), int(self.y)), self.radius)
+
     
 class Game:
     def __init__(self):
@@ -324,7 +358,7 @@ class Game:
                 self.ai_pokemon.projectiles.remove(projectile)
 
         # IA plus intelligente basée sur les types
-        if random.random() < 0.02:  # 2% de chance de tirer par frame
+        if random.random() < 0.1:  # 2% de chance de tirer par frame
             type_advantage = 1
             for ai_type in self.ai_pokemon.types:
                 for player_type in self.player_pokemon.types:
@@ -334,6 +368,20 @@ class Game:
             # IA tire si elle a un avantage de type
             if random.random() < 0.02 * type_advantage:
                 self.ai_pokemon.shoot()
+
+
+        # IA plus intelligente avec précision
+        if random.random() < 0.1:
+            current_accuracy = self.ai_pokemon.get_current_accuracy()
+            type_advantage = 1
+            for ai_type in self.ai_pokemon.types:
+                for player_type in self.player_pokemon.types:
+                    if TYPE_CHART.get(ai_type, {}).get(player_type, 1) > 1:
+                        type_advantage *= 1.5
+
+            if random.random() < 0.02 * type_advantage:
+                self.ai_pokemon.shoot()        
+
 
         # Vérification de la fin du combat
         if self.player_pokemon.health <= 0 or self.ai_pokemon.health <= 0:
@@ -443,6 +491,14 @@ class Game:
             
             self.screen.blit(player_text, (50, 50))
             self.screen.blit(ai_text, (WINDOW_WIDTH - 200, 50))
+
+        if self.player_pokemon:
+           accuracy_text = SMALL_FONT.render(
+               f"Précision: {int(self.player_pokemon.get_current_accuracy() * 100)}%",
+               True, BLACK
+           )
+           self.screen.blit(accuracy_text, (50, 100))
+
 
     def draw_end_game(self):
         if self.background:
