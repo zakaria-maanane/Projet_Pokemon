@@ -80,6 +80,83 @@ class Player:
         self.current_pokemon = None
         self.score = 0
 
+class Pokeball:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.radius = 20
+        self.is_thrown = False
+        self.target_x = 0
+        self.target_y = 0
+        self.speed = 10
+        self.captured_pokemon = None
+        self.animation_complete = False
+        self.original_x = x
+        self.original_y = y
+        self.capture_animation = 0  # Pour l'animation de capture
+        self.pokemon_sprite = None  # Pour stocker le sprite du Pokémon
+        self.capturing = False
+        self.pokemon_scale = 1.0    # Pour l'effet de réduction
+        
+    def throw(self, target_x, target_y, pokemon_sprite):
+        if not self.is_thrown and not self.captured_pokemon:
+            self.is_thrown = True
+            self.target_x = target_x
+            self.target_y = target_y
+            self.pokemon_sprite = pokemon_sprite
+            
+    def update(self):
+        if self.is_thrown and not self.animation_complete:
+            if not self.capturing:
+                dx = self.target_x - self.x
+                dy = self.target_y - self.y
+                distance = math.sqrt(dx**2 + dy**2)
+                
+                if distance < self.speed:
+                    self.capturing = True
+                else:
+                    self.x += (dx/distance) * self.speed
+                    self.y += (dy/distance) * self.speed
+            else:
+                # Animation de capture
+                self.capture_animation += 1
+                if self.capture_animation >= 30:  # Durée de l'animation
+                    self.animation_complete = True
+                    self.x = self.original_x
+                    self.y = self.original_y
+                
+    def draw(self, screen):
+        # Dessin de la Pokéball
+        pygame.draw.circle(screen, (203, 0, 0), (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(screen, (255, 255, 255), (int(self.x), int(self.y)), self.radius - 2)
+        pygame.draw.rect(screen, (0, 0, 0), 
+                        (self.x - self.radius, self.y - 2, self.radius * 2, 4))
+        pygame.draw.circle(screen, (0, 0, 0), (int(self.x), int(self.y)), 6)
+        pygame.draw.circle(screen, (255, 255, 255), (int(self.x), int(self.y)), 5)
+        pygame.draw.ellipse(screen, (255, 255, 255, 128), 
+                          (self.x - self.radius//3, self.y - self.radius//2, 
+                           self.radius//2, self.radius//4))
+        
+        # Affichage du Pokémon capturé en bas
+        if self.captured_pokemon and self.pokemon_sprite and not self.capturing:
+            sprite_size = 60  # Taille réduite pour l'affichage en bas
+            scaled_sprite = pygame.transform.scale(self.pokemon_sprite, (sprite_size, sprite_size))
+            screen.blit(scaled_sprite, 
+                       (self.original_x - sprite_size//2, 
+                        self.original_y + 40))
+        
+        # Animation de capture
+        if self.capturing and self.pokemon_sprite and not self.animation_complete:
+            self.pokemon_scale = max(0.1, 1.0 - (self.capture_animation / 30))
+            current_size = int(100 * self.pokemon_scale)
+            if current_size > 0:
+                scaled_sprite = pygame.transform.scale(self.pokemon_sprite, 
+                                                    (current_size, current_size))
+                screen.blit(scaled_sprite, 
+                           (self.x - current_size//2, 
+                            self.y - current_size//2))
+
+
 class Pokemon:
     def __init__(self, x, y, pokemon_id, pokemon_data, is_player=True):
         self.x = x
@@ -239,6 +316,18 @@ class Game:
         self.load_available_pokemon()
         self.running = True
 
+        # Positionnement des Pokéballs au centre de l'écran
+        center_x = WINDOW_WIDTH // 2
+        self.pokeballs = [
+            Pokeball(center_x - 100, WINDOW_HEIGHT // 2),
+            Pokeball(center_x, WINDOW_HEIGHT // 2),
+            Pokeball(center_x + 100, WINDOW_HEIGHT // 2)
+        ]
+        self.selected_pokeball = None
+        self.dragging = False
+        self.pokemon_sprites = {}  # Pour stocker les sprites
+
+
 
         self.end_game_result = None  # Pour stocker le résultat de la partie
         self.captured_pokemon = None  # Pour stocker le Pokémon capturé
@@ -267,7 +356,8 @@ class Game:
             print("Erreur de chargement des sons")
             self.battle_music = None
             self.shoot_sound = None
-      
+        
+        
 
 
     def load_available_pokemon(self):
@@ -298,16 +388,39 @@ class Game:
     def handle_selection_input(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
+            for pokeball in self.pokeballs:
+                if not pokeball.captured_pokemon and not pokeball.is_thrown:
+                    distance = math.sqrt((mouse_pos[0] - pokeball.x)**2 + 
+                                      (mouse_pos[1] - pokeball.y)**2)
+                    if distance < pokeball.radius:
+                        self.selected_pokeball = pokeball
+                        self.dragging = True
+                        
+        elif event.type == pygame.MOUSEBUTTONUP and self.dragging:
+            mouse_pos = pygame.mouse.get_pos()
             for i, pokemon in enumerate(self.available_pokemon[:6]):
-                pokemon_rect = pygame.Rect(100 + i * 120, 200, 100, 100)
-                if pokemon_rect.collidepoint(mouse_pos) and len(self.player.pokemon_team) < 3:
-                    self.player.pokemon_team.append(pokemon)
-                    if len(self.player.pokemon_team) == 3:
-                        # L'IA choisit ses Pokémon
-                        remaining_pokemon = [p for p in self.available_pokemon if p not in self.player.pokemon_team]
-                        self.ai_pokemon_team = random.sample(remaining_pokemon, 3)
-                        self.state = "BATTLE"
-                        self.setup_battle()
+                pokemon_rect = pygame.Rect(50 + i * 200, 150, 100, 100)
+                if pokemon_rect.collidepoint(mouse_pos):
+                    sprite = self.pokemon_sprites.get(pokemon['name'])
+                    if sprite:
+                        self.selected_pokeball.throw(
+                            pokemon_rect.centerx,
+                            pokemon_rect.centery,
+                            sprite
+                        )
+                        self.selected_pokeball.captured_pokemon = pokemon
+                    
+            self.dragging = False
+            self.selected_pokeball = None
+            
+            captured_count = sum(1 for ball in self.pokeballs if ball.captured_pokemon)
+            if captured_count == 3:
+                self.player.pokemon_team = [ball.captured_pokemon for ball in self.pokeballs]
+                remaining_pokemon = [p for p in self.available_pokemon 
+                                  if p not in self.player.pokemon_team]
+                self.ai_pokemon_team = random.sample(remaining_pokemon, 3)
+                self.state = "BATTLE"
+                self.setup_battle()
 
     def setup_battle(self):
         self.player_pokemon = None
@@ -409,36 +522,49 @@ class Game:
         self.screen.blit(deck_text, (200, 300))
 
     def draw_selection(self):
-
         if self.background:
             self.screen.blit(self.background, (0, 0))
         else:
             self.screen.fill(WHITE)
-
-    
-       
-        title = FONT.render("Sélectionnez 3 Pokémon", True, BLACK)
-        self.screen.blit(title, (250, 100))
+            
+        title = FONT.render("Capturez 3 Pokémon", True, BLACK)
+        self.screen.blit(title, (WINDOW_WIDTH//2 - title.get_width()//2, 50))
         
+        # Afficher les Pokémon disponibles
         for i, pokemon in enumerate(self.available_pokemon[:6]):
+            x_pos = 50 + i * 200
+            y_pos = 150
+            
+            # Chargement et stockage du sprite
             response = requests.get(pokemon['sprites']['front_default'])
             temp_file = f"temp_pokemon_{i}.png"
             with open(temp_file, 'wb') as f:
                 f.write(response.content)
             sprite = pygame.image.load(temp_file)
             sprite = pygame.transform.scale(sprite, (100, 100))
-            self.screen.blit(sprite, (100 + i * 120, 200))
+            self.pokemon_sprites[pokemon['name']] = sprite
+            self.screen.blit(sprite, (x_pos, y_pos))
+            
+            # Affichage du nom et des stats
+            name_text = FONT.render(pokemon['name'].title(), True, BLACK)
+            name_x = x_pos + 50 - name_text.get_width()//2
+            self.screen.blit(name_text, (name_x, y_pos + 110))
+            
+            stats_text = SMALL_FONT.render(
+                f"ATK: {pokemon['stats'][1]['base_stat']} | DEF: {pokemon['stats'][2]['base_stat']}", 
+                True, 
+                (50, 50, 50)
+            )
+            stats_x = x_pos + 50 - stats_text.get_width()//2
+            self.screen.blit(stats_text, (stats_x, y_pos + 150))
+            
             os.remove(temp_file)
-
-        # Affichage de l'équipe sélectionnée
-        selected_text = FONT.render("Équipe sélectionnée:", True, BLACK)
-        self.screen.blit(selected_text, (250, 350))
-        for i, pokemon in enumerate(self.player.pokemon_team):
-            name_text = SMALL_FONT.render(pokemon['name'], True, BLACK)
-            self.screen.blit(name_text, (100 + i * 120, 400))
-
-
-
+            
+        # Afficher les Pokéballs
+        for pokeball in self.pokeballs:
+            pokeball.update()
+            pokeball.draw(self.screen)
+            
     def draw_battle(self):
 
         #=====

@@ -147,3 +147,17 @@ Pokemon utilisés: ['blastoise', 'charizard', 'pikachu', 'squirtle']
 Score: 1
 Nouveau Pokemon capturé: squirtle
 --------------------------------------------------
+Date: 2025-02-17 17:12:58.958027
+Player: PERLA
+Deck: zak
+Pokemon utilisés: ['charizard', 'pikachu', 'charmander', 'squirtle']
+Score: 1
+Nouveau Pokemon capturé: squirtle
+--------------------------------------------------
+Date: 2025-02-17 22:34:22.802188
+Player: zak
+Deck: perla
+Pokemon utilisés: ['squirtle', 'pikachu', 'charizard', 'bulbasaur']
+Score: 1
+Nouveau Pokemon capturé: bulbasaur
+--------------------------------------------------
