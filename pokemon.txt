@@ -161,3 +161,37 @@ Pokemon utilisés: ['squirtle', 'pikachu', 'charizard', 'bulbasaur']
 Score: 1
 Nouveau Pokemon capturé: bulbasaur
 --------------------------------------------------
+Date: 2025-02-18 09:14:42.101299
+Player: Adam
+Deck: desk
+Pokemon utilisés: ['squirtle', 'pikachu', 'charizard', 'blastoise']
+Score: 1
+Nouveau Pokemon capturé: blastoise
+--------------------------------------------------
+Date: 2025-02-18 09:28:15.068601
+Player: Adam
+Deck: desk
+Pokemon utilisés: ['squirtle', 'pikachu', 'charizard']
+Score: 0
+--------------------------------------------------
+Date: 2025-02-18 10:31:55.365170
+Player: zak
+Deck: desk
+Pokemon utilisés: ['squirtle', 'pikachu', 'charizard', 'bulbasaur']
+Score: 1
+Nouveau Pokemon capturé: bulbasaur
+--------------------------------------------------
+Date: 2025-02-18 14:45:19.500058
+Player: zak
+Deck: po
+Pokemon utilisés: ['venusaur', 'venusaur', 'charmeleon', 'venonat']
+Score: 1
+Nouveau Pokemon capturé: venonat
+--------------------------------------------------
+Date: 2025-02-18 18:08:58.467589
+Player: zak
+Deck: per
+Pokemon utilisés: ['charizard', 'charmeleon', 'pikachu', 'blastoise']
+Score: 1
+Nouveau Pokemon capturé: blastoise
+--------------------------------------------------
