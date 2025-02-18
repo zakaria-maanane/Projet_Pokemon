@@ -108,6 +108,7 @@ class CaptureMinigame:
         self.pokeball_x = screen_width // 2
         self.pokeball_y = screen_height - 100
         self.pokeball_thrown = False
+        self.pokeball_grabbed = False  # Nouvel attribut pour suivre si la Pokéball est attrapée
         self.pokeball_speed = 10
         self.throw_angle = 0
         self.throw_power = 0
@@ -125,13 +126,13 @@ class CaptureMinigame:
         
         # Timer
         self.start_time = pygame.time.get_ticks()
-        self.duration = 10000  # 10 secondes
-        
+        self.duration = 10000
+
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time > self.duration and not self.is_capturing:
             return False
-            
+
         if not self.is_capturing:
             # Mise à jour de la position du Pokémon
             self.pokemon_direction += random.uniform(-0.1, 0.1)
@@ -148,9 +149,9 @@ class CaptureMinigame:
             self.pokemon_y = max(0, min(self.screen_height - 80, self.pokemon_y))
             self.pokemon_rect.x = self.pokemon_x
             self.pokemon_rect.y = self.pokemon_y
-            
-        # Mise à jour de la Pokéball lancée
-        if self.pokeball_thrown and not self.is_capturing:
+
+        # Mise à jour de la position de la Pokéball quand elle est lancée
+        if self.pokeball_thrown and not self.is_capturing and not self.pokeball_grabbed:
             self.throw_velocity_y += self.gravity
             self.pokeball_x += self.throw_velocity_x
             self.pokeball_y += self.throw_velocity_y
@@ -160,7 +161,7 @@ class CaptureMinigame:
             if pokeball_rect.colliderect(self.pokemon_rect):
                 self.is_capturing = True
                 self.capture_animation = 0
-                
+
         # Animation de capture
         if self.is_capturing:
             self.capture_animation += 1
@@ -175,18 +176,36 @@ class CaptureMinigame:
                 return True
                 
         return None
+
+    def handle_mouse(self, mouse_pos, mouse_pressed):
+        mouse_x, mouse_y = mouse_pos
         
-    def throw_pokeball(self, mouse_pos):
-        if not self.pokeball_thrown and not self.is_capturing:
-            dx = mouse_pos[0] - self.pokeball_x
-            dy = mouse_pos[1] - self.pokeball_y
-            angle = math.atan2(-dy, dx)
-            power = min(20, math.sqrt(dx*dx + dy*dy) / 20)
-            
-            self.throw_velocity_x = math.cos(angle) * power
-            self.throw_velocity_y = math.sin(angle) * power * -1
-            self.pokeball_thrown = True
-            
+        # Zone de collision pour la Pokéball
+        pokeball_rect = pygame.Rect(self.pokeball_x - 20, self.pokeball_y - 20, 40, 40)
+        
+        if mouse_pressed:  # Si le bouton de la souris est enfoncé
+            if not self.pokeball_thrown:
+                # Si on clique sur la Pokéball, on la "attrape"
+                if pokeball_rect.collidepoint(mouse_x, mouse_y):
+                    self.pokeball_grabbed = True
+                
+                # Si la Pokéball est attrapée, elle suit la souris
+                if self.pokeball_grabbed:
+                    self.pokeball_x = mouse_x
+                    self.pokeball_y = mouse_y
+        else:  # Si le bouton de la souris est relâché
+            if self.pokeball_grabbed:
+                # Calculer la vitesse de lancer basée sur la position de la souris
+                dx = mouse_x - self.pokeball_x
+                dy = mouse_y - self.pokeball_y
+                angle = math.atan2(-dy, dx)
+                power = min(20, math.sqrt(dx*dx + dy*dy) / 20)
+                
+                self.throw_velocity_x = math.cos(angle) * power
+                self.throw_velocity_y = math.sin(angle) * power * -1
+                self.pokeball_thrown = True
+                self.pokeball_grabbed = False
+
     def draw(self, screen):
         # Affichage du temps restant
         if not self.is_capturing:
@@ -222,8 +241,6 @@ class CaptureMinigame:
         pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 5)
         
         screen.blit(pokeball_surface, (pokeball_x, pokeball_y))
-
-
 
 class Pokemon:
     def __init__(self, x, y, pokemon_id, pokemon_data, is_player=True):
@@ -576,8 +593,9 @@ class Game:
 
     def handle_battle_input(self, event):
      if self.minigame_active and self.capture_minigame:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            self.capture_minigame.throw_pokeball(pygame.mouse.get_pos())
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pressed = pygame.mouse.get_pressed()[0]  # État du bouton gauche de la souris
+        self.capture_minigame.handle_mouse(mouse_pos, mouse_pressed)
         return
         
     # Si aucun Pokémon n'est sélectionné

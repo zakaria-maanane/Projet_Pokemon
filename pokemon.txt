@@ -119,3 +119,17 @@ Pokemon utilisés: ['charmander', 'charmeleon', 'charizard', 'fearow']
 Score: 1
 Nouveau Pokemon capturé: fearow
 --------------------------------------------------
+Date: 2025-02-18 23:02:28.919846
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok']
+Score: 1
+Nouveau Pokemon capturé: arbok
+--------------------------------------------------
+Date: 2025-02-18 23:03:20.441145
+Player: f
+Deck: f
+Pokemon utilisés: ['pidgey', 'charizard', 'charmeleon', 'pidgeotto']
+Score: 1
+Nouveau Pokemon capturé: pidgeotto
+--------------------------------------------------
