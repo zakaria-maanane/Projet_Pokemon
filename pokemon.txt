@@ -105,3 +105,17 @@ Pokemon utilisés: ['charizard', 'pikachu', 'squirtle', 'charmander']
 Score: 1
 Nouveau Pokemon capturé: charmander
 --------------------------------------------------
+Date: 2025-02-18 21:19:16.959747
+Player: zak
+Deck: perla
+Pokemon utilisés: ['charmander', 'charmeleon', 'squirtle', 'weedle']
+Score: 1
+Nouveau Pokemon capturé: weedle
+--------------------------------------------------
+Date: 2025-02-18 21:23:32.932036
+Player: zak
+Deck: y
+Pokemon utilisés: ['charmander', 'charmeleon', 'charizard', 'fearow']
+Score: 1
+Nouveau Pokemon capturé: fearow
+--------------------------------------------------
