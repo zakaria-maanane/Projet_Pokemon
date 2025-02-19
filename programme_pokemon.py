@@ -517,15 +517,27 @@ class Game:
             self.shoot_sound = None
         
         
+    # 2. Modification de la méthode start_minigame pour utiliser le Pokémon sélectionné
     def start_minigame(self):
-        self.minigame_active = True
-        self.minigame_start_time = pygame.time.get_ticks()
-        self.capture_minigame = CaptureMinigame(
-            self.player.pokemon_team[0], 
-            WINDOW_WIDTH, 
-            WINDOW_HEIGHT
-        )
-        self.minigame_result = None
+     self.minigame_active = True
+     self.minigame_start_time = pygame.time.get_ticks()
+    # Utiliser le Pokémon actuellement sélectionné au lieu du premier de l'équipe
+     pokemon_data = None
+     for pokemon in self.player.pokemon_team:
+         if pokemon['id'] == self.player_pokemon.id:
+             pokemon_data = pokemon
+             break
+    
+    # Fallback au premier Pokémon si le Pokémon actuel n'est pas trouvé
+     if not pokemon_data and self.player.pokemon_team:
+         pokemon_data = self.player.pokemon_team[0]
+    
+     self.capture_minigame = CaptureMinigame(
+         pokemon_data, 
+         WINDOW_WIDTH, 
+         WINDOW_HEIGHT
+     )
+     self.minigame_result = None
 
 
     def update_minigame(self):
@@ -889,72 +901,84 @@ class Game:
 
 
 
+    # 1. Modification de la méthode draw_end_game pour afficher jusqu'à 20 Pokémon
     def draw_end_game(self):
-        if self.background:
-            self.screen.blit(self.background, (0, 0))
-        else:
-            self.screen.fill(WHITE)
+     if self.background:
+        self.screen.blit(self.background, (0, 0))
+     else:
+        self.screen.fill(WHITE)
+    
+    # Titre
+     if self.end_game_result == "WIN":
+        title = FONT.render("Victoire!", True, GREEN)
+        subtitle = FONT.render("Vous avez capturé un nouveau Pokémon!", True, BLACK)
+     else:
+        title = FONT.render("Défaite!", True, RED)
+        subtitle = FONT.render("Continuez à vous entraîner!", True, BLACK)
         
+     self.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
+     self.screen.blit(subtitle, (WINDOW_WIDTH // 2 - subtitle.get_width() // 2, 100))
+
+    # Affichage de votre équipe (modifié pour afficher jusqu'à 20 Pokémon)
+     team_title = FONT.render("Votre équipe:", True, BLACK)
+     self.screen.blit(team_title, (50, 150))
+
+    # Organisation en grille pour afficher plus de Pokémon
+     pokemon_per_row = 6
+     pokemon_size = 80
+     horizontal_spacing = 100
+     vertical_spacing = 130
+    
+     for i, pokemon in enumerate(self.player.pokemon_team):
+        row = i // pokemon_per_row
+        col = i % pokemon_per_row
+        x_position = 50 + col * horizontal_spacing
+        y_position = 200 + row * vertical_spacing
         
-        # Titre
-        if self.end_game_result == "WIN":
-            title = FONT.render("Victoire!", True, GREEN)
-            subtitle = FONT.render("Vous avez capturé un nouveau Pokémon!", True, BLACK)
-        else:
-            title = FONT.render("Défaite!", True, RED)
-            subtitle = FONT.render("Continuez à vous entraîner!", True, BLACK)
-            
-        self.screen.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, 50))
-        self.screen.blit(subtitle, (WINDOW_WIDTH // 2 - subtitle.get_width() // 2, 100))
+        # Charger et afficher le sprite
+        response = requests.get(pokemon['sprites']['front_default'])
+        temp_file = f"temp_end_game_{i}.png"
+        with open(temp_file, 'wb') as f:
+            f.write(response.content)
+        sprite = pygame.image.load(temp_file)
+        sprite = pygame.transform.scale(sprite, (pokemon_size, pokemon_size))
+        self.screen.blit(sprite, (x_position, y_position))
+        
+        # Nom du Pokémon
+        name = SMALL_FONT.render(pokemon['name'], True, BLACK)
+        self.screen.blit(name, (x_position, y_position + pokemon_size + 5))
+        
+        os.remove(temp_file)
 
-        # Affichage de votre équipe
-        team_title = FONT.render("Votre équipe:", True, BLACK)
-        self.screen.blit(team_title, (50, 150))
+    # Affichage du Pokémon capturé si victoire
+     if self.end_game_result == "WIN" and self.captured_pokemon:
+        captured_title = FONT.render("Pokémon capturé:", True, BLACK)
+        
+        # Positionnement du Pokémon capturé en bas à droite
+        capture_x = WINDOW_WIDTH - 200
+        capture_y = WINDOW_HEIGHT - 180
+        self.screen.blit(captured_title, (capture_x, capture_y - 50))
+        
+        response = requests.get(self.captured_pokemon['sprites']['front_default'])
+        temp_file = "temp_captured.png"
+        with open(temp_file, 'wb') as f:
+            f.write(response.content)
+        sprite = pygame.image.load(temp_file)
+        sprite = pygame.transform.scale(sprite, (100, 100))
+        self.screen.blit(sprite, (capture_x, capture_y))
+        
+        name = SMALL_FONT.render(self.captured_pokemon['name'], True, BLACK)
+        self.screen.blit(name, (capture_x, capture_y + 110))
+        
+        os.remove(temp_file)
 
-        for i, pokemon in enumerate(self.player.pokemon_team):
-            # Charger et afficher le sprite
-            response = requests.get(pokemon['sprites']['front_default'])
-            temp_file = f"temp_end_game_{i}.png"
-            with open(temp_file, 'wb') as f:
-                f.write(response.content)
-            sprite = pygame.image.load(temp_file)
-            sprite = pygame.transform.scale(sprite, (100, 100))
-            self.screen.blit(sprite, (50 + i * 150, 200))
-            
-            # Nom du Pokémon
-            name = SMALL_FONT.render(pokemon['name'], True, BLACK)
-            self.screen.blit(name, (50 + i * 150, 310))
-            
-            os.remove(temp_file)
+    # Options de fin de partie
+     y_options = WINDOW_HEIGHT - 100
+     replay_text = FONT.render("R - Rejouer avec un autre Pokémon", True, BLACK)
+     quit_text = FONT.render("Q - Quitter le jeu", True, BLACK)
+     self.screen.blit(replay_text, (WINDOW_WIDTH // 2 - replay_text.get_width() // 2, y_options))
+     self.screen.blit(quit_text, (WINDOW_WIDTH // 2 - quit_text.get_width() // 2, y_options + 50))
 
-        # Affichage du Pokémon capturé si victoire
-        if self.end_game_result == "WIN" and self.captured_pokemon:
-            captured_title = FONT.render("Pokémon capturé:", True, BLACK)
-            self.screen.blit(captured_title, (50, 350))
-            
-            response = requests.get(self.captured_pokemon['sprites']['front_default'])
-            temp_file = "temp_captured.png"
-            with open(temp_file, 'wb') as f:
-                f.write(response.content)
-            sprite = pygame.image.load(temp_file)
-            sprite = pygame.transform.scale(sprite, (100, 100))
-            self.screen.blit(sprite, (50, 400))
-            
-            name = SMALL_FONT.render(self.captured_pokemon['name'], True, BLACK)
-            self.screen.blit(name, (50, 510))
-            
-            os.remove(temp_file)
-
-
-        # Message pour continuer
-        # Options de fin de partie
-        replay_text = FONT.render("R - Rejouer avec un autre Pokémon", True, BLACK)
-        quit_text = FONT.render("Q - Quitter le jeu", True, BLACK)
-        self.screen.blit(replay_text, (WINDOW_WIDTH // 2 - replay_text.get_width() // 2, 500))
-        self.screen.blit(quit_text, (WINDOW_WIDTH // 2 - quit_text.get_width() // 2, 550))
-
-        continue_text = SMALL_FONT.render("Appuyez sur ESPACE pour quitter", True, BLACK)
-        self.screen.blit(continue_text, (WINDOW_WIDTH // 2 - continue_text.get_width() // 2, 550))
 
     def handle_selection_input(self, event):
      if event.type == pygame.MOUSEBUTTONDOWN:

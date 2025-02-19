@@ -306,3 +306,17 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'wigglytuff']
 Score: 3
 Nouveau Pokemon capturé: wigglytuff
 --------------------------------------------------
+Date: 2025-02-19 23:43:33.464988
+Player: io
+Deck: io
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'vulpix']
+Score: 1
+Nouveau Pokemon capturé: vulpix
+--------------------------------------------------
+Date: 2025-02-19 23:43:52.846511
+Player: io
+Deck: io
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'vulpix']
+Score: 2
+Nouveau Pokemon capturé: vulpix
+--------------------------------------------------
