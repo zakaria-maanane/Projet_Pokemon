@@ -285,3 +285,24 @@ Deck: kk
 Pokemon utilisés: ['charizard', 'charmeleon', 'charmander']
 Score: 0
 --------------------------------------------------
+Date: 2025-02-19 23:28:02.027324
+Player: zak
+Deck: po
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'wigglytuff']
+Score: 1
+Nouveau Pokemon capturé: wigglytuff
+--------------------------------------------------
+Date: 2025-02-19 23:28:30.805500
+Player: zak
+Deck: po
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'wigglytuff']
+Score: 2
+Nouveau Pokemon capturé: wigglytuff
+--------------------------------------------------
+Date: 2025-02-19 23:28:57.346473
+Player: zak
+Deck: po
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'wigglytuff']
+Score: 3
+Nouveau Pokemon capturé: wigglytuff
+--------------------------------------------------

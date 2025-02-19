@@ -120,7 +120,7 @@ class CaptureMinigame:
             pokeball_filename = "temp_pokeball.png"
             pokeball_image.save(pokeball_filename)
             self.pokeball_sprite = pygame.image.load(pokeball_filename)
-            self.pokeball_sprite = pygame.transform.scale(self.pokeball_sprite, (70, 70))
+            self.pokeball_sprite = pygame.transform.scale(self.pokeball_sprite, (80, 80))
             os.remove(pokeball_filename)
         else:
             self.pokeball_sprite = None
@@ -477,7 +477,7 @@ class Game:
         
         self.pokemon_sprites = {}
 
-        
+        self.ai_pokemon = None
 
         # Positionnement pour la selection des 3 pokémons puis du pokémon seul et mini jeu 
         self.minigame_active = False
@@ -619,12 +619,18 @@ class Game:
                 self.state = "BATTLE"
                 self.setup_battle()
 
-    def setup_battle(self):
-    # Initialiser les Pokémon sans lancer le mini-jeu
-     if not hasattr(self, 'player_pokemon'):
-        self.player_pokemon = None  # Pour la sélection initiale
-        self.ai_pokemon = Pokemon(600, 300, self.ai_pokemon_team[0]['id'], self.ai_pokemon_team[0], False)
 
+    def setup_battle(self):
+     if not hasattr(self, 'player_pokemon'):
+        self.player_pokemon = None
+    
+    # Choisir un nouveau Pokémon adverse aléatoire
+     if not self.ai_pokemon or self.state == "END_GAME":
+        remaining_pokemon = [p for p in self.available_pokemon 
+                           if p not in self.player.pokemon_team]
+        if remaining_pokemon:
+            new_opponent = random.choice(remaining_pokemon)
+            self.ai_pokemon = Pokemon(600, 300, new_opponent['id'], new_opponent, False)
 
     def save_game_data(self):
         with open("pokemon.txt", "a") as f:
@@ -939,7 +945,14 @@ class Game:
             
             os.remove(temp_file)
 
+
         # Message pour continuer
+        # Options de fin de partie
+        replay_text = FONT.render("R - Rejouer avec un autre Pokémon", True, BLACK)
+        quit_text = FONT.render("Q - Quitter le jeu", True, BLACK)
+        self.screen.blit(replay_text, (WINDOW_WIDTH // 2 - replay_text.get_width() // 2, 500))
+        self.screen.blit(quit_text, (WINDOW_WIDTH // 2 - quit_text.get_width() // 2, 550))
+
         continue_text = SMALL_FONT.render("Appuyez sur ESPACE pour quitter", True, BLACK)
         self.screen.blit(continue_text, (WINDOW_WIDTH // 2 - continue_text.get_width() // 2, 550))
 
@@ -980,6 +993,16 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif self.state == "END_GAME":
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_r:  # Rejouer
+                            # Réinitialiser pour un nouveau combat
+                            self.player_pokemon = None
+                            self.ai_pokemon = None
+                            self.state = "BATTLE"
+                            self.setup_battle()
+                            # Garder l'équipe actuelle avec les Pokémon gagnés
+                        elif event.key == pygame.K_q:  # Quitter
+                            self.running = False
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                         self.running = False
                 elif self.state == "WELCOME":
