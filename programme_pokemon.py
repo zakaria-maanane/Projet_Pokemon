@@ -81,82 +81,166 @@ class Player:
         self.current_pokemon = None
         self.score = 0
 
-class Pokeball:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.radius = 20
-        self.is_thrown = False
-        self.target_x = 0
-        self.target_y = 0
-        self.speed = 10
-        self.captured_pokemon = None
-        self.animation_complete = False
-        self.original_x = x
-        self.original_y = y
-        self.capture_animation = 0  # Pour l'animation de capture
-        self.pokemon_sprite = None  # Pour stocker le sprite du Pokémon
-        self.capturing = False
-        self.pokemon_scale = 1.0    # Pour l'effet de réduction
+class CaptureMinigame:
+    def __init__(self, pokemon_data, screen_width, screen_height):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.pokemon_data = pokemon_data
         
-    def throw(self, target_x, target_y, pokemon_sprite):
-        if not self.is_thrown and not self.captured_pokemon:
-            self.is_thrown = True
-            self.target_x = target_x
-            self.target_y = target_y
-            self.pokemon_sprite = pokemon_sprite
-            
-    def update(self):
-        if self.is_thrown and not self.animation_complete:
-            if not self.capturing:
-                dx = self.target_x - self.x
-                dy = self.target_y - self.y
-                distance = math.sqrt(dx**2 + dy**2)
-                
-                if distance < self.speed:
-                    self.capturing = True
-                else:
-                    self.x += (dx/distance) * self.speed
-                    self.y += (dy/distance) * self.speed
-            else:
-                # Animation de capture
-                self.capture_animation += 1
-                if self.capture_animation >= 30:  # Durée de l'animation
-                    self.animation_complete = True
-                    self.x = self.original_x
-                    self.y = self.original_y
-                
-    def draw(self, screen):
-        # Dessin de la Pokéball
-        pygame.draw.circle(screen, (203, 0, 0), (int(self.x), int(self.y)), self.radius)
-        pygame.draw.circle(screen, (255, 255, 255), (int(self.x), int(self.y)), self.radius - 2)
-        pygame.draw.rect(screen, (0, 0, 0), 
-                        (self.x - self.radius, self.y - 2, self.radius * 2, 4))
-        pygame.draw.circle(screen, (0, 0, 0), (int(self.x), int(self.y)), 6)
-        pygame.draw.circle(screen, (255, 255, 255), (int(self.x), int(self.y)), 5)
-        pygame.draw.ellipse(screen, (255, 255, 255, 128), 
-                          (self.x - self.radius//3, self.y - self.radius//2, 
-                           self.radius//2, self.radius//4))
+        # Chargement du sprite du Pokémon
+        sprite_url = pokemon_data['sprites']['front_default']
+        response = requests.get(sprite_url)
+        sprite_filename = f"temp_pokemon_minigame.png"
+        with open(sprite_filename, 'wb') as f:
+            f.write(response.content)
+        self.pokemon_sprite = pygame.image.load(sprite_filename)
+        self.pokemon_sprite = pygame.transform.scale(self.pokemon_sprite, (80, 80))
+        os.remove(sprite_filename)
         
-        # Affichage du Pokémon capturé en bas
-        if self.captured_pokemon and self.pokemon_sprite and not self.capturing:
-            sprite_size = 60  # Taille réduite pour l'affichage en bas
-            scaled_sprite = pygame.transform.scale(self.pokemon_sprite, (sprite_size, sprite_size))
-            screen.blit(scaled_sprite, 
-                       (self.original_x - sprite_size//2, 
-                        self.original_y + 40))
+        # Position et mouvement du Pokémon
+        self.pokemon_x = random.randint(100, screen_width - 100)
+        self.pokemon_y = random.randint(100, screen_height - 100)
+        self.pokemon_speed = 5
+        self.pokemon_direction = random.uniform(0, 2 * math.pi)
+        self.pokemon_rect = pygame.Rect(self.pokemon_x, self.pokemon_y, 80, 80)
+        
+        # Pokéball
+        self.pokeball_x = screen_width // 2
+        self.pokeball_y = screen_height - 100
+        self.pokeball_thrown = False
+        self.pokeball_grabbed = False  # Nouvel attribut pour suivre si la Pokéball est attrapée
+        self.pokeball_speed = 10
+        self.throw_angle = 0
+        self.throw_power = 0
+        self.gravity = 0.5
+        self.throw_velocity_x = 0
+        self.throw_velocity_y = 0
         
         # Animation de capture
-        if self.capturing and self.pokemon_sprite and not self.animation_complete:
-            self.pokemon_scale = max(0.1, 1.0 - (self.capture_animation / 30))
-            current_size = int(100 * self.pokemon_scale)
-            if current_size > 0:
-                scaled_sprite = pygame.transform.scale(self.pokemon_sprite, 
-                                                    (current_size, current_size))
-                screen.blit(scaled_sprite, 
-                           (self.x - current_size//2, 
-                            self.y - current_size//2))
+        self.capture_animation = 0
+        self.is_capturing = False
+        self.capture_successful = False
+        self.pokemon_scale = 1.0
+        self.shake_count = 0
+        self.shake_direction = 1
+        
+        # Timer
+        self.start_time = pygame.time.get_ticks()
+        self.duration = 10000
 
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time > self.duration and not self.is_capturing:
+            return False
+
+        if not self.is_capturing:
+            # Mise à jour de la position du Pokémon
+            self.pokemon_direction += random.uniform(-0.1, 0.1)
+            self.pokemon_x += math.cos(self.pokemon_direction) * self.pokemon_speed
+            self.pokemon_y += math.sin(self.pokemon_direction) * self.pokemon_speed
+            
+            # Maintenir le Pokémon dans l'écran
+            if self.pokemon_x < 0 or self.pokemon_x > self.screen_width - 80:
+                self.pokemon_direction = math.pi - self.pokemon_direction
+            if self.pokemon_y < 0 or self.pokemon_y > self.screen_height - 80:
+                self.pokemon_direction = -self.pokemon_direction
+                
+            self.pokemon_x = max(0, min(self.screen_width - 80, self.pokemon_x))
+            self.pokemon_y = max(0, min(self.screen_height - 80, self.pokemon_y))
+            self.pokemon_rect.x = self.pokemon_x
+            self.pokemon_rect.y = self.pokemon_y
+
+        # Mise à jour de la position de la Pokéball quand elle est lancée
+        if self.pokeball_thrown and not self.is_capturing and not self.pokeball_grabbed:
+            self.throw_velocity_y += self.gravity
+            self.pokeball_x += self.throw_velocity_x
+            self.pokeball_y += self.throw_velocity_y
+            
+            # Vérification de la collision
+            pokeball_rect = pygame.Rect(self.pokeball_x - 20, self.pokeball_y - 20, 40, 40)
+            if pokeball_rect.colliderect(self.pokemon_rect):
+                self.is_capturing = True
+                self.capture_animation = 0
+
+        # Animation de capture
+        if self.is_capturing:
+            self.capture_animation += 1
+            if self.capture_animation < 30:
+                self.pokemon_scale = max(0.1, 1.0 - (self.capture_animation / 30))
+            elif self.capture_animation < 90:
+                if (self.capture_animation - 30) % 20 == 0:
+                    self.shake_count += 1
+                    self.shake_direction *= -1
+            else:
+                self.capture_successful = True
+                return True
+                
+        return None
+
+    def handle_mouse(self, mouse_pos, mouse_pressed):
+        mouse_x, mouse_y = mouse_pos
+        
+        # Zone de collision pour la Pokéball
+        pokeball_rect = pygame.Rect(self.pokeball_x - 20, self.pokeball_y - 20, 40, 40)
+        
+        if mouse_pressed:  # Si le bouton de la souris est enfoncé
+            if not self.pokeball_thrown:
+                # Si on clique sur la Pokéball, on la "attrape"
+                if pokeball_rect.collidepoint(mouse_x, mouse_y):
+                    self.pokeball_grabbed = True
+                
+                # Si la Pokéball est attrapée, elle suit la souris
+                if self.pokeball_grabbed:
+                    self.pokeball_x = mouse_x
+                    self.pokeball_y = mouse_y
+        else:  # Si le bouton de la souris est relâché
+            if self.pokeball_grabbed:
+                # Calculer la vitesse de lancer basée sur la position de la souris
+                dx = mouse_x - self.pokeball_x
+                dy = mouse_y - self.pokeball_y
+                angle = math.atan2(-dy, dx)
+                power = min(20, math.sqrt(dx*dx + dy*dy) / 20)
+                
+                self.throw_velocity_x = math.cos(angle) * power
+                self.throw_velocity_y = math.sin(angle) * power * -1
+                self.pokeball_thrown = True
+                self.pokeball_grabbed = False
+
+    def draw(self, screen):
+        # Affichage du temps restant
+        if not self.is_capturing:
+            remaining_time = max(0, (self.duration - (pygame.time.get_ticks() - self.start_time)) / 1000)
+            time_text = FONT.render(f"Temps: {remaining_time:.1f}s", True, BLACK)
+            screen.blit(time_text, (20, 20))
+            
+        # Affichage du Pokémon
+        if not self.is_capturing:
+            screen.blit(self.pokemon_sprite, (self.pokemon_x, self.pokemon_y))
+        elif self.capture_animation < 30:
+            scaled_size = int(80 * self.pokemon_scale)
+            if scaled_size > 0:
+                scaled_sprite = pygame.transform.scale(self.pokemon_sprite, (scaled_size, scaled_size))
+                screen.blit(scaled_sprite, (self.pokemon_x + (80 - scaled_size)//2, 
+                                          self.pokemon_y + (80 - scaled_size)//2))
+                
+        # Affichage de la Pokéball
+        pokeball_surface = pygame.Surface((40, 40), pygame.SRCALPHA)
+        if self.is_capturing and self.capture_animation >= 30:
+            shake_offset = math.sin(self.capture_animation * 0.2) * 10 * self.shake_direction
+            pokeball_x = self.pokemon_x + 20 + shake_offset
+        else:
+            pokeball_x = self.pokeball_x - 20
+            
+        pokeball_y = self.pokeball_y - 20 if not self.is_capturing else self.pokemon_y + 20
+        
+        # Dessin de la Pokéball
+        pygame.draw.circle(pokeball_surface, (203, 0, 0), (20, 20), 20)
+        pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 18)
+        pygame.draw.rect(pokeball_surface, (0, 0, 0), (0, 18, 40, 4))
+        pygame.draw.circle(pokeball_surface, (0, 0, 0), (20, 20), 6)
+        pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 5)
+        
+        screen.blit(pokeball_surface, (pokeball_x, pokeball_y))
 
 class Pokemon:
     def __init__(self, x, y, pokemon_id, pokemon_data, is_player=True):
@@ -343,16 +427,11 @@ class Game:
         self.load_available_pokemon()
         self.running = True
 
-        # Positionnement des Pokéballs au centre de l'écran
-        center_x = WINDOW_WIDTH // 2
-        self.pokeballs = [
-            Pokeball(center_x - 100, WINDOW_HEIGHT // 2),
-            Pokeball(center_x, WINDOW_HEIGHT // 2),
-            Pokeball(center_x + 100, WINDOW_HEIGHT // 2)
-        ]
-        self.selected_pokeball = None
-        self.dragging = False
-        self.pokemon_sprites = {}  # Pour stocker les sprites
+        self.capture_minigame = None
+        
+        self.pokemon_sprites = {}
+
+        
 
         # Positionnement pour la selection des 3 pokémons puis du pokémon seul et mini jeu 
         self.minigame_active = False
@@ -395,80 +474,38 @@ class Game:
     def start_minigame(self):
         self.minigame_active = True
         self.minigame_start_time = pygame.time.get_ticks()
-        self.star = Star(WINDOW_WIDTH, WINDOW_HEIGHT)
-        self.player_character = {'x': WINDOW_WIDTH//2, 'y': WINDOW_HEIGHT//2, 'radius': 20, 'color': GREEN}
+        self.capture_minigame = CaptureMinigame(
+            self.player.pokemon_team[0], 
+            WINDOW_WIDTH, 
+            WINDOW_HEIGHT
+        )
         self.minigame_result = None
 
 
     def update_minigame(self):
-        if not self.minigame_active:
+        if not self.minigame_active or not self.capture_minigame:
             return
-    
-       # Vérifier si le temps est écoulé (5 secondes)
-        current_time = pygame.time.get_ticks()
-        if current_time - self.minigame_start_time > 5000:
-           self.minigame_active = False
-           self.minigame_result = False
-           self.setup_battle()
-           return
-    
-    # Mettre à jour l'étoile
-        self.star.update()
-
-        # Déplacer le personnage du joueur avec les touches
-        keys = pygame.key.get_pressed()
-        speed = 5
-        if keys[pygame.K_LEFT]:
-           self.player_character['x'] -= speed
-        if keys[pygame.K_RIGHT]:
-           self.player_character['x'] += speed
-        if keys[pygame.K_UP]:
-           self.player_character['y'] -= speed
-        if keys[pygame.K_DOWN]:
-           self.player_character['y'] += speed
-
-        # Limiter la position du personnage à l'écran
-        self.player_character['x'] = max(self.player_character['radius'], 
-                                  min(self.player_character['x'], 
-                                      WINDOW_WIDTH - self.player_character['radius']))
-        self.player_character['y'] = max(self.player_character['radius'], 
-                                     min(self.player_character['y'], 
-                                          WINDOW_HEIGHT - self.player_character['radius']))
-        
-        # Vérifier si le joueur a touché l'étoile
-        distance = math.sqrt((self.player_character['x'] - self.star.x)**2 + 
-                       (self.player_character['y'] - self.star.y)**2)
-        if distance < self.player_character['radius'] + self.star.radius:
+            
+        result = self.capture_minigame.update()
+        if result is not None:
             self.minigame_active = False
-            self.minigame_result = True
-            self.setup_battle()
-
+            self.minigame_result = result
+            if result and hasattr(self, 'player_pokemon') and self.player_pokemon:
+                self.player_pokemon.special_attack_available = True
+                
 
     def draw_minigame(self):
-        if not self.minigame_active:
-           return
-      
+        if not self.minigame_active or not self.capture_minigame:
+            return
+            
         self.screen.fill(WHITE)
-    
-        # Afficher le temps restant
-        elapsed_time = (pygame.time.get_ticks() - self.minigame_start_time) / 1000
-        remaining_time = max(0, 5 - elapsed_time)
-        time_text = FONT.render(f"Temps: {remaining_time:.1f} s", True, BLACK)
-        self.screen.blit(time_text, (20, 20))
-
-        # Instructions
-        instructions = SMALL_FONT.render("Attrapez l'étoile pour obtenir une attaque spéciale!", True, BLACK)
+        instructions = SMALL_FONT.render(
+            "Capturez le Pokémon avec la Pokéball pour obtenir l'attaque spéciale!", 
+            True, BLACK
+        )
         self.screen.blit(instructions, (WINDOW_WIDTH//2 - instructions.get_width()//2, 60))
-    
-        # Dessiner l'étoile
-        self.star.draw(self.screen)
-
-        # Dessiner le personnage du joueur
-        pygame.draw.circle(self.screen, self.player_character['color'], 
-                       (int(self.player_character['x']), int(self.player_character['y'])), 
-                        self.player_character['radius'])
-
-
+        
+        self.capture_minigame.draw(self.screen)
 
 
 
@@ -537,20 +574,10 @@ class Game:
                 self.setup_battle()
 
     def setup_battle(self):
-     if self.minigame_active or hasattr(self, 'minigame_result'):
-        # Si le mini-jeu vient de se terminer ou est en cours
-        self.player_pokemon = None
+    # Initialiser les Pokémon sans lancer le mini-jeu
+     if not hasattr(self, 'player_pokemon'):
+        self.player_pokemon = None  # Pour la sélection initiale
         self.ai_pokemon = Pokemon(600, 300, self.ai_pokemon_team[0]['id'], self.ai_pokemon_team[0], False)
-        
-        # Si le mini-jeu a été gagné, activer l'attaque spéciale
-        if hasattr(self, 'minigame_result') and self.minigame_result:
-            self.special_attack_available = True
-        else:
-            self.special_attack_available = False
-     else:
-        # Le mini-jeu n'a pas encore été joué, on le lance
-        self.start_minigame()
-
 
 
     def save_game_data(self):
@@ -565,29 +592,39 @@ class Game:
             f.write("-" * 50 + "\n")
 
     def handle_battle_input(self, event):
+     if self.minigame_active and self.capture_minigame:
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_pressed = pygame.mouse.get_pressed()[0]  # État du bouton gauche de la souris
+        self.capture_minigame.handle_mouse(mouse_pos, mouse_pressed)
+        return
+        
+    # Si aucun Pokémon n'est sélectionné
      if self.player_pokemon is None:
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            # Vérifie la zone de clic pour chaque Pokémon de l'équipe
             for i, pokemon in enumerate(self.player.pokemon_team):
-                # Utiliser la zone de sprite plus grande (150x150)
-                pokemon_rect = pygame.Rect(200 + i * 300 - 75, 150, 150, 150)
-                if pokemon_rect.collidepoint(mouse_pos):
+                x_pos = 200 + i * 300
+                y_pos = 150
+                # Zone de clic de 150x150 pixels
+                if (x_pos - 75 <= mouse_x <= x_pos + 75 and 
+                    y_pos <= mouse_y <= y_pos + 150):
+                    # Crée le Pokémon sélectionné
                     self.player_pokemon = Pokemon(100, 300, pokemon['id'], pokemon, True)
-                    # Transmettre le résultat du mini-jeu au Pokémon
-                    if hasattr(self, 'minigame_result') and self.minigame_result:
-                        self.player_pokemon.special_attack_available = True
+                    
+                    # Lance le mini-jeu de capture
+                    self.start_minigame()
+                    break
      else:
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_x:
+        # Gestion des tirs pendant le combat
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Clic gauche
                 self.player_pokemon.shoot()
-                if self.shoot_sound:
-                    self.shoot_sound.play()
-            elif event.key == pygame.K_b and self.player_pokemon.special_attack_available:
-                self.player_pokemon.special_attack()
-                if self.shoot_sound:
-                    # Jouer le son plusieurs fois pour l'attaque spéciale
-                    for _ in range(3):
-                        self.shoot_sound.play()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_b and hasattr(self.player_pokemon, 'special_attack_available'):
+                if self.player_pokemon.special_attack_available:
+                    self.player_pokemon.special_attack()
+
 
     def update_battle(self):
      if self.player_pokemon and self.ai_pokemon:
@@ -888,12 +925,12 @@ class Game:
             self.setup_battle()
 
     def run(self):
-        try:    
-            if self.battle_music:
-               self.battle_music.play(-1)  # Démarre la musique en boucle
+     try:    
+        if self.battle_music:
+            self.battle_music.play(-1)
 
-            while self.running:
-              for event in pygame.event.get():
+        while self.running:
+            for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif self.state == "END_GAME":
@@ -904,80 +941,33 @@ class Game:
                 elif self.state == "SELECTION":
                     self.handle_selection_input(event)
                 elif self.state == "BATTLE":
-                    if not self.minigame_active:
-                        self.handle_battle_input(event)
+                    self.handle_battle_input(event)
 
             # Mise à jour de l'affichage selon l'état
-              if self.state == "WELCOME":
+            if self.state == "WELCOME":
                 self.draw_welcome()
-              elif self.state == "SELECTION":
+            elif self.state == "SELECTION":
                 self.draw_selection()
-              elif self.state == "BATTLE":
-                  if self.minigame_active:
-                      self.update_minigame()
-                      self.draw_minigame()
-                  else:
-                      self.update_battle()
-                      self.draw_battle()
-              elif self.state == "END_GAME":
-                   self.draw_end_game()
+            elif self.state == "BATTLE":
+                if self.minigame_active:
+                    self.update_minigame()
+                    self.draw_minigame()
+                else:
+                    self.update_battle()
+                    self.draw_battle()
+            elif self.state == "END_GAME":
+                self.draw_end_game()
 
-              pygame.display.flip()
-              self.clock.tick(FPS)
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
-        except Exception as e:
-            print(f"Une erreur s'est produite: {e}")
-        # Optionnel: vous pourriez ajouter du code pour sauvegarder l'état du jeu
-        # ou effectuer un nettoyage avant de terminer
-        finally:
-        # Ce bloc s'exécute toujours, qu'il y ait une exception ou non
-           pygame.quit()      
-    
-class Star:
-    def __init__(self, screen_width, screen_height):
-        self.x = random.randint(50, screen_width - 50)
-        self.y = random.randint(50, screen_height - 50)
-        self.radius = 15
-        self.color = YELLOW
-        self.speed = 3
-        self.direction = random.uniform(0, 2 * math.pi)
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-        
-    def update(self):
-        # Déplacement aléatoire
-        self.direction += random.uniform(-0.2, 0.2)
-        self.x += math.cos(self.direction) * self.speed
-        self.y += math.sin(self.direction) * self.speed
-        
-        # Rebondir sur les bords
-        if self.x < self.radius:
-            self.x = self.radius
-            self.direction = math.pi - self.direction
-        elif self.x > self.screen_width - self.radius:
-            self.x = self.screen_width - self.radius
-            self.direction = math.pi - self.direction
-        
-        if self.y < self.radius:
-            self.y = self.radius
-            self.direction = -self.direction
-        elif self.y > self.screen_height - self.radius:
-            self.y = self.screen_height - self.radius
-            self.direction = -self.direction
-        
-    def draw(self, screen):
-        # Dessine une étoile simple
-        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-        points = []
-        for i in range(5):
-            angle = 2 * math.pi * i / 5 - math.pi / 2
-            x = self.x + self.radius * math.cos(angle)
-            y = self.y + self.radius * math.sin(angle)
-            points.append((x, y))
-        pygame.draw.polygon(screen, self.color, points)
-
-
+     except Exception as e:
+        print(f"Une erreur s'est produite: {e}")
+     finally:
+         pygame.quit()
+  
 
 if __name__ == "__main__":
     game = Game()
-    game.run()
+    game.run() 
+
