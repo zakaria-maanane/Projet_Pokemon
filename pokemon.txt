@@ -133,3 +133,51 @@ Pokemon utilisés: ['pidgey', 'charizard', 'charmeleon', 'pidgeotto']
 Score: 1
 Nouveau Pokemon capturé: pidgeotto
 --------------------------------------------------
+Date: 2025-02-18 23:37:07.054036
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charmander', 'weedle', 'ekans', 'lickitung']
+Score: 1
+Nouveau Pokemon capturé: lickitung
+--------------------------------------------------
+Date: 2025-02-18 23:54:06.276205
+Player: zak
+Deck: zak
+Pokemon utilisés: ['pidgeotto', 'charizard', 'kakuna', 'sandslash']
+Score: 1
+Nouveau Pokemon capturé: sandslash
+--------------------------------------------------
+Date: 2025-02-19 00:05:41.670709
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'raichu', 'kakuna', 'jigglypuff']
+Score: 1
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------
+Date: 2025-02-19 09:08:04.873750
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'oddish']
+Score: 1
+Nouveau Pokemon capturé: oddish
+--------------------------------------------------
+Date: 2025-02-19 09:16:44.523112
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander']
+Score: 0
+--------------------------------------------------
+Date: 2025-02-19 10:03:26.298778
+Player: zak
+Deck: zak
+Pokemon utilisés: ['nidoking', 'charizard', 'charmeleon', 'beedrill']
+Score: 1
+Nouveau Pokemon capturé: beedrill
+--------------------------------------------------
+Date: 2025-02-19 13:47:34.877441
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charmeleon', 'charmander', 'charizard', 'jigglypuff']
+Score: 1
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------

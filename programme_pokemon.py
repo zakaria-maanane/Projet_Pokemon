@@ -965,52 +965,10 @@ class Game:
         print(f"Une erreur s'est produite: {e}")
      finally:
          pygame.quit()
-    
-class Star:
-    def __init__(self, screen_width, screen_height):
-        self.x = random.randint(50, screen_width - 50)
-        self.y = random.randint(50, screen_height - 50)
-        self.radius = 15
-        self.color = YELLOW
-        self.speed = 3
-        self.direction = random.uniform(0, 2 * math.pi)
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-        
-    def update(self):
-        # Déplacement aléatoire
-        self.direction += random.uniform(-0.2, 0.2)
-        self.x += math.cos(self.direction) * self.speed
-        self.y += math.sin(self.direction) * self.speed
-        
-        # Rebondir sur les bords
-        if self.x < self.radius:
-            self.x = self.radius
-            self.direction = math.pi - self.direction
-        elif self.x > self.screen_width - self.radius:
-            self.x = self.screen_width - self.radius
-            self.direction = math.pi - self.direction
-        
-        if self.y < self.radius:
-            self.y = self.radius
-            self.direction = -self.direction
-        elif self.y > self.screen_height - self.radius:
-            self.y = self.screen_height - self.radius
-            self.direction = -self.direction
-        
-    def draw(self, screen):
-        # Dessine une étoile simple
-        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-        points = []
-        for i in range(5):
-            angle = 2 * math.pi * i / 5 - math.pi / 2
-            x = self.x + self.radius * math.cos(angle)
-            y = self.y + self.radius * math.sin(angle)
-            points.append((x, y))
-        pygame.draw.polygon(screen, self.color, points)
-
-
+  
 
 if __name__ == "__main__":
     game = Game()
-    game.run()
+    game.run() 
+
+
