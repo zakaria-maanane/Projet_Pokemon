@@ -301,6 +301,8 @@ class Pokemon:
         self.id = pokemon_id
         self.name = pokemon_data['name']
 
+       
+
         self.shots_fired = 0
         self.base_accuracy = 0.80  # 80% de précision initiale
         self.reduced_accuracy = 0.65  # 65% après 4 tirs
@@ -666,10 +668,17 @@ class Game:
      if self.player_pokemon is None:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            # Vérifie la zone de clic pour chaque Pokémon de l'équipe
+            
+            # Configuration identique à celle dans draw_battle
+            pokemon_per_row = 4
+            horizontal_spacing = 220
+            
             for i, pokemon in enumerate(self.player.pokemon_team):
-                x_pos = 200 + i * 300
-                y_pos = 150
+                row = i // pokemon_per_row
+                col = i % pokemon_per_row
+                x_pos = 100 + col * horizontal_spacing
+                y_pos = 150 + row * 300
+                
                 # Zone de clic de 150x150 pixels
                 if (x_pos - 75 <= mouse_x <= x_pos + 75 and 
                     y_pos <= mouse_y <= y_pos + 150):
@@ -736,8 +745,15 @@ class Game:
             if self.ai_pokemon.health <= 0:
                 self.player.score += 1
                 self.end_game_result = "WIN"
-                self.captured_pokemon = self.ai_pokemon_team[0]
-                if self.captured_pokemon not in self.player.pokemon_team:
+
+                #Cela capturera le Pokémon réellement vaincu pendant le combat en cours, 
+                # plutôt que toujours le premier de l'équipe adverse.
+                captured_id = self.ai_pokemon.id  # Je suppose que 'id' est un attribut accessible
+                self.captured_pokemon = next((p for p in self.available_pokemon if p['id'] == captured_id), None)
+  
+       
+
+            if self.captured_pokemon not in self.player.pokemon_team:
                     self.player.pokemon_team.append(self.captured_pokemon)
             else:
                 self.end_game_result = "LOSE"
@@ -822,10 +838,15 @@ class Game:
         text = FONT.render("Choisissez votre Pokémon", True, BLACK)
         self.screen.blit(text, (WINDOW_WIDTH//2 - text.get_width()//2, 50))
         
-        # Affichage des Pokémon avec caractéristiques verticales
+        # Organisation en grille
+        pokemon_per_row = 4  # Nombre de Pokémon par ligne
+        horizontal_spacing = 220  # Espacement horizontal plus petit
+        
         for i, pokemon in enumerate(self.player.pokemon_team):
-            x_pos = 200 + i * 300
-            y_pos = 150
+            row = i // pokemon_per_row
+            col = i % pokemon_per_row
+            x_pos = 100 + col * horizontal_spacing
+            y_pos = 150 + row * 300  # Espacement vertical pour les lignes supplémentaires
             
             # Charger et afficher le sprite plus grand
             if pokemon['name'] not in self.pokemon_sprites:

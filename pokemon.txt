@@ -320,3 +320,55 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'vulpix']
 Score: 2
 Nouveau Pokemon capturé: vulpix
 --------------------------------------------------
+Date: 2025-02-20 00:01:40.505748
+Player: uop
+Deck: op
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidorina']
+Score: 1
+Nouveau Pokemon capturé: nidorina
+--------------------------------------------------
+Date: 2025-02-20 00:02:11.558399
+Player: uop
+Deck: op
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidorina', 'venonat']
+Score: 2
+Nouveau Pokemon capturé: venonat
+--------------------------------------------------
+Date: 2025-02-20 00:05:51.472471
+Player: h
+Deck: 
+Date: 2025-02-20 00:12:36.724011
+Player: g
+Deck: g
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok']
+Score: 1
+Nouveau Pokemon capturé: arbok
+--------------------------------------------------
+Date: 2025-02-20 00:12:54.183916
+Player: g
+Deck: g
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok', 'raichu']
+Score: 2
+Nouveau Pokemon capturé: raichu
+--------------------------------------------------
+Date: 2025-02-20 00:13:08.002726
+Player: g
+Deck: g
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok', 'raichu', 'spearow']
+Score: 3
+Nouveau Pokemon capturé: spearow
+--------------------------------------------------
+Date: 2025-02-20 00:13:23.480715
+Player: g
+Deck: g
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok', 'raichu', 'spearow', 'paras']
+Score: 4
+Nouveau Pokemon capturé: paras
+--------------------------------------------------
+Date: 2025-02-20 00:13:38.871077
+Player: g
+Deck: g
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok', 'raichu', 'spearow', 'paras']
+Score: 4
+Nouveau Pokemon capturé: paras
+--------------------------------------------------
