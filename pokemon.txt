@@ -265,3 +265,23 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'metapod']
 Score: 1
 Nouveau Pokemon capturé: metapod
 --------------------------------------------------
+Date: 2025-02-19 19:37:08.775490
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoqueen']
+Score: 1
+Nouveau Pokemon capturé: nidoqueen
+--------------------------------------------------
+Date: 2025-02-19 19:37:50.911636
+Player: zz
+Deck: zz
+Pokemon utilisés: ['charmeleon', 'charizard', 'charmander', 'beedrill']
+Score: 1
+Nouveau Pokemon capturé: beedrill
+--------------------------------------------------
+Date: 2025-02-19 19:50:08.791998
+Player: zakk
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander']
+Score: 0
+--------------------------------------------------

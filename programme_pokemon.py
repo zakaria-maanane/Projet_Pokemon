@@ -6,6 +6,10 @@ import random
 from datetime import datetime
 import math
 
+# On récupère les données du PokéAPI pour la Pokeball 
+from io import BytesIO
+from PIL import Image
+
 # Initialisation de Pygame
 pygame.init()
 pygame.font.init()
@@ -86,7 +90,17 @@ class CaptureMinigame:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.pokemon_data = pokemon_data
-        
+
+        try:
+        # Chargez votre image de fond (remplacez 'background.png' par votre fichier)
+           self.background = pygame.image.load('background.png')
+        # Redimensionnez l'image pour qu'elle corresponde à la taille de l'écran
+           self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
+        except:
+           self.background = None
+           print("Erreur lors du chargement de l'image de fond")
+
+
         # Chargement du sprite du Pokémon
         sprite_url = pokemon_data['sprites']['front_default']
         response = requests.get(sprite_url)
@@ -96,6 +110,20 @@ class CaptureMinigame:
         self.pokemon_sprite = pygame.image.load(sprite_filename)
         self.pokemon_sprite = pygame.transform.scale(self.pokemon_sprite, (80, 80))
         os.remove(sprite_filename)
+        
+        # Chargement de l'image de la Pokéball depuis l'API
+        pokeball_url = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+        response = requests.get(pokeball_url)
+        if response.status_code == 200:
+            pokeball_data = BytesIO(response.content)
+            pokeball_image = Image.open(pokeball_data)
+            pokeball_filename = "temp_pokeball.png"
+            pokeball_image.save(pokeball_filename)
+            self.pokeball_sprite = pygame.image.load(pokeball_filename)
+            self.pokeball_sprite = pygame.transform.scale(self.pokeball_sprite, (70, 70))
+            os.remove(pokeball_filename)
+        else:
+            self.pokeball_sprite = None
         
         # Position et mouvement du Pokémon
         self.pokemon_x = random.randint(100, screen_width - 100)
@@ -108,7 +136,7 @@ class CaptureMinigame:
         self.pokeball_x = screen_width // 2
         self.pokeball_y = screen_height - 100
         self.pokeball_thrown = False
-        self.pokeball_grabbed = False  # Nouvel attribut pour suivre si la Pokéball est attrapée
+        self.pokeball_grabbed = False
         self.pokeball_speed = 10
         self.throw_angle = 0
         self.throw_power = 0
@@ -127,7 +155,7 @@ class CaptureMinigame:
         # Timer
         self.start_time = pygame.time.get_ticks()
         self.duration = 10000
-
+    
     def update(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time > self.duration and not self.is_capturing:
@@ -207,6 +235,15 @@ class CaptureMinigame:
                 self.pokeball_grabbed = False
 
     def draw(self, screen):
+
+        # Affichage du fond bleu
+        if self.background:
+           screen.blit(self.background, (0, 0))
+        else:
+        # Fallback : fond de couleur simple si l'image ne charge pas
+          screen.fill((135, 206, 235))  # Bleu ciel par exemple
+
+
         # Affichage du temps restant
         if not self.is_capturing:
             remaining_time = max(0, (self.duration - (pygame.time.get_ticks() - self.start_time)) / 1000)
@@ -224,23 +261,32 @@ class CaptureMinigame:
                                           self.pokemon_y + (80 - scaled_size)//2))
                 
         # Affichage de la Pokéball
-        pokeball_surface = pygame.Surface((40, 40), pygame.SRCALPHA)
-        if self.is_capturing and self.capture_animation >= 30:
-            shake_offset = math.sin(self.capture_animation * 0.2) * 10 * self.shake_direction
-            pokeball_x = self.pokemon_x + 20 + shake_offset
-        else:
-            pokeball_x = self.pokeball_x - 20
+        if self.pokeball_sprite:
+            if self.is_capturing and self.capture_animation >= 30:
+                shake_offset = math.sin(self.capture_animation * 0.2) * 10 * self.shake_direction
+                pokeball_x = self.pokemon_x + 20 + shake_offset
+            else:
+                pokeball_x = self.pokeball_x - 20
+                
+            pokeball_y = self.pokeball_y - 20 if not self.is_capturing else self.pokemon_y + 20
             
-        pokeball_y = self.pokeball_y - 20 if not self.is_capturing else self.pokemon_y + 20
-        
-        # Dessin de la Pokéball
-        pygame.draw.circle(pokeball_surface, (203, 0, 0), (20, 20), 20)
-        pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 18)
-        pygame.draw.rect(pokeball_surface, (0, 0, 0), (0, 18, 40, 4))
-        pygame.draw.circle(pokeball_surface, (0, 0, 0), (20, 20), 6)
-        pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 5)
-        
-        screen.blit(pokeball_surface, (pokeball_x, pokeball_y))
+            # Rotation de la Pokéball pendant le vol
+            if self.pokeball_thrown and not self.is_capturing:
+                angle = (pygame.time.get_ticks() % 360) * 2
+                rotated_pokeball = pygame.transform.rotate(self.pokeball_sprite, angle)
+                screen.blit(rotated_pokeball, (pokeball_x, pokeball_y))
+            else:
+                screen.blit(self.pokeball_sprite, (pokeball_x, pokeball_y))
+        else:
+            # Fallback au dessin de la Pokéball si l'image n'a pas pu être chargée
+            pokeball_surface = pygame.Surface((40, 40), pygame.SRCALPHA)
+            pygame.draw.circle(pokeball_surface, (203, 0, 0), (20, 20), 20)
+            pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 18)
+            pygame.draw.rect(pokeball_surface, (0, 0, 0), (0, 18, 40, 4))
+            pygame.draw.circle(pokeball_surface, (0, 0, 0), (20, 20), 6)
+            pygame.draw.circle(pokeball_surface, (255, 255, 255), (20, 20), 5)
+            screen.blit(pokeball_surface, (pokeball_x, pokeball_y))
+
 
 class Pokemon:
     def __init__(self, x, y, pokemon_id, pokemon_data, is_player=True):
