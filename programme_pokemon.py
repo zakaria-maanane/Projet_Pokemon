@@ -657,19 +657,25 @@ class Game:
                 f.write(f"Nouveau Pokemon capturé: {self.captured_pokemon['name']}\n")
             f.write("-" * 50 + "\n")
 
+
     def handle_battle_input(self, event):
      if self.minigame_active and self.capture_minigame:
         mouse_pos = pygame.mouse.get_pos()
-        mouse_pressed = pygame.mouse.get_pressed()[0]  # État du bouton gauche de la souris
+        mouse_pressed = pygame.mouse.get_pressed()[0]
         self.capture_minigame.handle_mouse(mouse_pos, mouse_pressed)
         return
-        
-    # Si aucun Pokémon n'est sélectionné
+
+     if event.type == pygame.KEYDOWN:
+        # Gestion de la touche W pour abandonner
+        if event.key == pygame.K_w and self.player_pokemon is not None:
+            self.end_game_result = "LOSE"
+            self.state = "END_GAME"
+            return
+
+     # Code existant pour la sélection du Pokémon et les attaques
      if self.player_pokemon is None:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            
-            # Configuration identique à celle dans draw_battle
             pokemon_per_row = 4
             horizontal_spacing = 220
             
@@ -679,19 +685,14 @@ class Game:
                 x_pos = 100 + col * horizontal_spacing
                 y_pos = 150 + row * 300
                 
-                # Zone de clic de 150x150 pixels
                 if (x_pos - 75 <= mouse_x <= x_pos + 75 and 
                     y_pos <= mouse_y <= y_pos + 150):
-                    # Crée le Pokémon sélectionné
                     self.player_pokemon = Pokemon(100, 360, pokemon['id'], pokemon, True)
-                    
-                    # Lance le mini-jeu de capture
                     self.start_minigame()
                     break
      else:
-        # Gestion des tirs pendant le combat
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Clic gauche
+            if event.button == 1:
                 self.player_pokemon.shoot()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_b and hasattr(self.player_pokemon, 'special_attack_available'):
@@ -907,6 +908,10 @@ class Game:
         self.screen.blit(player_text, (50, 50))
         self.screen.blit(ai_text, (WINDOW_WIDTH - 200, 50))
 
+        # Message pour l'abandon avec W
+        surrender_text = SMALL_FONT.render("Appuyez sur W pour abandonner", True, (0, 0, 0))  
+        self.screen.blit(surrender_text, (WINDOW_WIDTH - surrender_text.get_width() - 20, WINDOW_HEIGHT - 30))
+
      if self.player_pokemon:
         accuracy_text = SMALL_FONT.render(
             f"Précision: {int(self.player_pokemon.get_current_accuracy() * 100)}%",
@@ -918,9 +923,7 @@ class Game:
         if hasattr(self.player_pokemon, 'special_attack_available') and self.player_pokemon.special_attack_available:
             special_text = SMALL_FONT.render("Appuyez sur B pour attaque spéciale!", True, GREEN)
             self.screen.blit(special_text, (50, 130))
-
-
-
+                             
 
     # 1. Modification de la méthode draw_end_game pour afficher jusqu'à 20 Pokémon
     def draw_end_game(self):
@@ -1084,4 +1087,3 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.run() 
-

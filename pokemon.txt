@@ -456,3 +456,73 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok']
 Score: 1
 Nouveau Pokemon capturé: arbok
 --------------------------------------------------
+Date: 2025-02-20 13:16:11.092084
+Player: rroo
+Deck: gggo
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoran-m']
+Score: 1
+Nouveau Pokemon capturé: nidoran-m
+--------------------------------------------------
+Date: 2025-02-20 13:16:43.490852
+Player: rroo
+Deck: gggo
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoran-m']
+Score: 1
+Nouveau Pokemon capturé: nidoran-m
+--------------------------------------------------
+Date: 2025-02-20 13:17:06.521069
+Player: rroo
+Deck: gggo
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoran-m', 'raichu']
+Score: 2
+Nouveau Pokemon capturé: raichu
+--------------------------------------------------
+Date: 2025-02-20 13:18:05.102166
+Player: rroo
+Deck: gggo
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoran-m', 'raichu', 'arbok']
+Score: 3
+Nouveau Pokemon capturé: arbok
+--------------------------------------------------
+Date: 2025-02-20 14:37:24.489756
+Player: if
+Deck: to
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'pidgeotto']
+Score: 1
+Nouveau Pokemon capturé: pidgeotto
+--------------------------------------------------
+Date: 2025-02-20 14:41:22.236160
+Player: tt
+Deck: tt
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'pidgey']
+Score: 1
+Nouveau Pokemon capturé: pidgey
+--------------------------------------------------
+Date: 2025-02-20 14:41:44.212287
+Player: tt
+Deck: tt
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'pidgey', 'metapod']
+Score: 2
+Nouveau Pokemon capturé: metapod
+--------------------------------------------------
+Date: 2025-02-20 14:43:02.015179
+Player: tt
+Deck: tt
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'pidgey', 'metapod']
+Score: 2
+Nouveau Pokemon capturé: metapod
+--------------------------------------------------
+Date: 2025-02-20 17:58:55.850435
+Player: rl
+Deck: rl
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'venonat']
+Score: 1
+Nouveau Pokemon capturé: venonat
+--------------------------------------------------
+Date: 2025-02-20 17:59:22.491831
+Player: rl
+Deck: rl
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'venonat', 'fearow']
+Score: 2
+Nouveau Pokemon capturé: fearow
+--------------------------------------------------
