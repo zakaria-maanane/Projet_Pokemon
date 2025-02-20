@@ -293,8 +293,8 @@ class Pokemon:
         self.x = x
         self.y = y
         self.is_player = is_player
-        self.width = 100
-        self.height = 100
+        self.width = 200
+        self.height = 200
         self.health = 100
         self.max_health = 100
         self.projectiles = []
@@ -644,7 +644,7 @@ class Game:
                            if p not in self.player.pokemon_team]
         if remaining_pokemon:
             new_opponent = random.choice(remaining_pokemon)
-            self.ai_pokemon = Pokemon(600, 300, new_opponent['id'], new_opponent, False)
+            self.ai_pokemon = Pokemon(800, 410, new_opponent['id'], new_opponent, False)
 
     def save_game_data(self):
         with open("pokemon.txt", "a") as f:
@@ -683,7 +683,7 @@ class Game:
                 if (x_pos - 75 <= mouse_x <= x_pos + 75 and 
                     y_pos <= mouse_y <= y_pos + 150):
                     # Crée le Pokémon sélectionné
-                    self.player_pokemon = Pokemon(100, 300, pokemon['id'], pokemon, True)
+                    self.player_pokemon = Pokemon(100, 360, pokemon['id'], pokemon, True)
                     
                     # Lance le mini-jeu de capture
                     self.start_minigame()

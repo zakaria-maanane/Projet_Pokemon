@@ -372,3 +372,87 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok', 'raichu', '
 Score: 4
 Nouveau Pokemon capturé: paras
 --------------------------------------------------
+Date: 2025-02-20 11:09:56.082531
+Player: zak
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking']
+Score: 1
+Nouveau Pokemon capturé: nidoking
+--------------------------------------------------
+Date: 2025-02-20 11:10:46.893834
+Player: zak
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'fearow']
+Score: 2
+Nouveau Pokemon capturé: fearow
+--------------------------------------------------
+Date: 2025-02-20 11:11:07.343072
+Player: zak
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'fearow', 'weedle']
+Score: 3
+Nouveau Pokemon capturé: weedle
+--------------------------------------------------
+Date: 2025-02-20 11:11:37.501859
+Player: zak
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'fearow', 'weedle', 'jigglypuff']
+Score: 4
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------
+Date: 2025-02-20 11:11:55.111839
+Player: zak
+Deck: kk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'fearow', 'weedle', 'jigglypuff']
+Score: 4
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------
+Date: 2025-02-20 11:43:31.360903
+Player: opr
+Deck: ddk
+Pokemon utilisés: ['charmeleon', 'charmander', 'charizard', 'caterpie']
+Score: 1
+Nouveau Pokemon capturé: caterpie
+--------------------------------------------------
+Date: 2025-02-20 11:43:47.286399
+Player: opr
+Deck: ddk
+Pokemon utilisés: ['charmeleon', 'charmander', 'charizard', 'caterpie', 'bulbasaur']
+Score: 2
+Nouveau Pokemon capturé: bulbasaur
+--------------------------------------------------
+Date: 2025-02-20 12:37:18.419125
+Player: rooro
+Deck: pofk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking']
+Score: 1
+Nouveau Pokemon capturé: nidoking
+--------------------------------------------------
+Date: 2025-02-20 12:37:56.996578
+Player: rooro
+Deck: pofk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'ekans']
+Score: 2
+Nouveau Pokemon capturé: ekans
+--------------------------------------------------
+Date: 2025-02-20 12:38:44.403578
+Player: rooro
+Deck: pofk
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoking', 'ekans', 'caterpie']
+Score: 3
+Nouveau Pokemon capturé: caterpie
+--------------------------------------------------
+Date: 2025-02-20 12:57:14.401422
+Player: yuu
+Deck: yuu
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'venusaur']
+Score: 1
+Nouveau Pokemon capturé: venusaur
+--------------------------------------------------
+Date: 2025-02-20 13:05:38.611695
+Player: dd
+Deck: d
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'arbok']
+Score: 1
+Nouveau Pokemon capturé: arbok
+--------------------------------------------------
