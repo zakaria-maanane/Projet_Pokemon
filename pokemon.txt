@@ -526,3 +526,52 @@ Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'venonat', 'fearow']
 Score: 2
 Nouveau Pokemon capturé: fearow
 --------------------------------------------------
+Date: 2025-02-20 18:34:20.828095
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'kakuna']
+Score: 1
+Nouveau Pokemon capturé: kakuna
+--------------------------------------------------
+Date: 2025-02-20 18:35:13.964398
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'kakuna', 'venomoth']
+Score: 2
+Nouveau Pokemon capturé: venomoth
+--------------------------------------------------
+Date: 2025-02-20 20:45:25.256855
+Player: zak
+Deck: zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'nidoran-m']
+Score: 1
+Nouveau Pokemon capturé: nidoran-m
+--------------------------------------------------
+Date: 2025-02-21 11:15:19.288966
+Player: Perla
+Deck: Zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'parasect']
+Score: 1
+Nouveau Pokemon capturé: parasect
+--------------------------------------------------
+Date: 2025-02-21 11:15:58.922610
+Player: Perla
+Deck: Zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'parasect', 'squirtle']
+Score: 2
+Nouveau Pokemon capturé: squirtle
+--------------------------------------------------
+Date: 2025-02-21 11:19:05.263726
+Player: Perla
+Deck: Zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'parasect', 'squirtle', 'jigglypuff']
+Score: 3
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------
+Date: 2025-02-21 11:19:40.029915
+Player: Perla
+Deck: Zak
+Pokemon utilisés: ['charizard', 'charmeleon', 'charmander', 'parasect', 'squirtle', 'jigglypuff']
+Score: 3
+Nouveau Pokemon capturé: jigglypuff
+--------------------------------------------------
